@@ -1,0 +1,121 @@
+// Prisma schema for SRIT exam seating prototype
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum ExamType {
+  MID
+  SEM
+}
+
+model Student {
+  id        String   @id @default(cuid())
+  rollNo    String   @unique
+  name      String
+  dept      String
+  year      Int
+  email     String
+  createdAt DateTime @default(now())
+
+  sessionStudents SessionStudent[]
+  assignments     SeatingAssignment[]
+  outboxEmails    OutboxEmail[]
+}
+
+model Room {
+  id            String   @id @default(cuid())
+  block         String
+  roomNo        String
+  benches       Int
+  seatsPerBench Int      @default(2)
+  isActive      Boolean  @default(true)
+  createdAt     DateTime @default(now())
+
+  sessionRooms SessionRoom[]
+  assignments  SeatingAssignment[]
+}
+
+model ExamSession {
+  id        String   @id @default(cuid())
+  examType  ExamType
+  daysCount Int
+  createdAt DateTime @default(now())
+
+  sessionStudents SessionStudent[]
+  sessionRooms    SessionRoom[]
+  plans           SeatingPlan[]
+}
+
+model SessionStudent {
+  id        String @id @default(cuid())
+  sessionId String
+  studentId String
+
+  session ExamSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  student Student     @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@unique([sessionId, studentId])
+}
+
+model SessionRoom {
+  id        String @id @default(cuid())
+  sessionId String
+  roomId    String
+
+  session ExamSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  room    Room        @relation(fields: [roomId], references: [id], onDelete: Cascade)
+
+  @@unique([sessionId, roomId])
+}
+
+model SeatingPlan {
+  id        String   @id @default(cuid())
+  sessionId String
+  dayIndex  Int
+  version   Int
+  seed      String
+  createdAt DateTime @default(now())
+
+  session     ExamSession       @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  assignments SeatingAssignment[]
+  outbox      OutboxEmail[]
+
+  @@unique([sessionId, dayIndex, version])
+}
+
+model SeatingAssignment {
+  id       String @id @default(cuid())
+  planId   String
+  studentId String
+  roomId   String
+  benchNo  Int
+  seatNo   Int
+
+  plan    SeatingPlan @relation(fields: [planId], references: [id], onDelete: Cascade)
+  student Student     @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  room    Room        @relation(fields: [roomId], references: [id], onDelete: Cascade)
+
+  @@unique([planId, studentId])
+  @@unique([planId, roomId, benchNo, seatNo])
+}
+
+model OutboxEmail {
+  id        String   @id @default(cuid())
+  planId    String
+  studentId String
+  toEmail   String
+  subject   String
+  body      String
+  createdAt DateTime @default(now())
+
+  plan    SeatingPlan @relation(fields: [planId], references: [id], onDelete: Cascade)
+  student Student     @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@unique([planId, studentId])
+}
