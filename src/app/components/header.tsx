@@ -18,21 +18,21 @@ export function Header() {
           </div>
           <div className="flex items-center gap-4">
             <a
-              href="#login"
+              href="/login?role=student"
               className="flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors"
             >
               <User className="w-4 h-4" />
               <span>Student Login</span>
             </a>
             <a
-              href="#login"
+              href="/login?role=faculty"
               className="flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors"
             >
               <LogIn className="w-4 h-4" />
               <span>Faculty Login</span>
             </a>
             <a
-              href="/admin/login"
+              href="/login?role=admin"
               className="flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors"
             >
               <Shield className="w-4 h-4" />
