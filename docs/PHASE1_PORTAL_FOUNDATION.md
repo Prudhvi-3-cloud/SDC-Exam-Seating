@@ -13,7 +13,8 @@ Role-specific login variants (UI switches based on query):
 
 Portal layout group: src/app/(portal)/layout.tsx
 
-## Demo login users
+## Demo login users (Phase 1 only)
+Note: Phase 2 switches portal auth to DB-backed users. See docs/PHASE2_ADMIN_CORE.md for active credentials.
 Admins
 - principal.admin@srit.ac.in / sritadmin1 (Dr. Rao)
 - examcell.admin@srit.ac.in / sritadmin2 (Ms. Priya)

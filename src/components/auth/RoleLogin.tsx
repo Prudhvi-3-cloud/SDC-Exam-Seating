@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import type { Role } from "@/lib/session";
 import { getSession, setSession } from "@/lib/session";
-import { mockUsers } from "@/lib/mockAuth";
 
 const roleLabels: Record<Role, string> = {
   admin: "Admin",
@@ -27,27 +26,35 @@ export default function RoleLogin({ role }: { role: Role }) {
     }
   }, [router]);
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setIsSubmitting(true);
     setError(null);
+    try {
+      const response = await fetch("/api/portal/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: email.trim(), password }),
+      });
 
-    const normalizedEmail = email.trim().toLowerCase();
-    const user = mockUsers.find(
-      (entry) =>
-        entry.role === role &&
-        entry.email.toLowerCase() === normalizedEmail &&
-        entry.password === password
-    );
+      if (!response.ok) {
+        const data = await response.json().catch(() => ({}));
+        setError(data.error || `Invalid ${roleLabels[role].toLowerCase()} credentials.`);
+        return;
+      }
 
-    if (!user) {
-      setError(`Invalid ${roleLabels[role].toLowerCase()} credentials.`);
+      const data = await response.json();
+      const responseRole = String(data.role || "").toLowerCase();
+      if (responseRole !== role) {
+        setError("Please use the correct login for your role.");
+        return;
+      }
+
+      setSession({ email: data.email, role, name: data.name });
+      router.replace(`/portal/${role}`);
+    } finally {
       setIsSubmitting(false);
-      return;
     }
-
-    setSession({ email: user.email, role: user.role, name: user.name });
-    router.replace(`/portal/${user.role}`);
   };
 
   return (

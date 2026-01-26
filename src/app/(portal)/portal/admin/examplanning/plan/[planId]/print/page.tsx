@@ -1,10 +1,10 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import { use, useEffect, useState } from "react";
 
 type PlanResponse = {
   plan: {
+    sessionId: string;
     dayIndex: number;
     version: number;
     examType: "MID" | "SEM";
@@ -28,38 +28,43 @@ type PlanResponse = {
   }[];
 };
 
+type InvigilatorAssignment = {
+  roomId: string;
+  faculty: string[];
+};
+
 export default function PrintPlan({ params }: { params: Promise<{ planId: string }> }) {
   const { planId } = use(params);
-  const router = useRouter();
   const [planData, setPlanData] = useState<PlanResponse | null>(null);
   const seatColumns = planData?.plan.examType === "SEM" ? [1] : [1, 2];
-  const [isAllowed, setIsAllowed] = useState(false);
+  const [invigilators, setInvigilators] = useState<InvigilatorAssignment[]>([]);
 
   useEffect(() => {
-    const allowed = localStorage.getItem("sritAdminAuthed") === "true";
-    if (!allowed) {
-      router.replace("/admin/login");
-      return;
-    }
-    setIsAllowed(true);
-  }, [router]);
-
-  useEffect(() => {
-    if (!isAllowed) {
-      return;
-    }
     (async () => {
       const response = await fetch(`/api/plans/${planId}`);
       const data = await response.json();
       if (response.ok) {
         setPlanData(data);
+        const sessionId = data?.plan?.sessionId;
+        if (sessionId) {
+          const invigilatorResponse = await fetch(`/api/sessions/${sessionId}/invigilators`);
+          const invigilatorData = await invigilatorResponse.json().catch(() => null);
+          if (invigilatorResponse.ok) {
+            const grouped = new Map<string, string[]>();
+            (invigilatorData?.invigilators ?? []).forEach((item: any) => {
+              const name = item.facultyProfile?.user?.name ?? "Faculty";
+              const current = grouped.get(item.roomId) ?? [];
+              current.push(name);
+              grouped.set(item.roomId, current);
+            });
+            setInvigilators(
+              Array.from(grouped.entries()).map(([roomId, faculty]) => ({ roomId, faculty })),
+            );
+          }
+        }
       }
     })();
-  }, [isAllowed]);
-
-  if (!isAllowed) {
-    return null;
-  }
+  }, []);
 
   return (
     <div className="print-page">
@@ -72,6 +77,8 @@ export default function PrintPlan({ params }: { params: Promise<{ planId: string
             assignment.student,
           ]),
         );
+        const invigilatorNames =
+          invigilators.find((item) => item.roomId === roomGroup.room.id)?.faculty ?? [];
 
         return (
           <section key={roomGroup.room.id} className="print-room">
@@ -92,6 +99,7 @@ export default function PrintPlan({ params }: { params: Promise<{ planId: string
                     {seatColumns.map((seatNo) => (
                       <th key={`year-${seatNo}`}>Seat {seatNo} Year</th>
                     ))}
+                    <th>Invigilator(s)</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -112,6 +120,11 @@ export default function PrintPlan({ params }: { params: Promise<{ planId: string
                           const student = assignmentMap.get(`${benchNo}-${seatNo}`);
                           return <td key={`year-${seatNo}`}>{student?.year ?? "-"}</td>;
                         })}
+                        {index === 0 ? (
+                          <td rowSpan={roomGroup.room.benches}>
+                            {invigilatorNames.join(", ") || "-"}
+                          </td>
+                        ) : null}
                       </tr>
                     );
                   })}
@@ -121,6 +134,34 @@ export default function PrintPlan({ params }: { params: Promise<{ planId: string
           </section>
         );
       })}
+
+      <div className="print-room">
+        <h2>Invigilator Allocation</h2>
+        <div className="plan-grid">
+          <table>
+            <thead>
+              <tr>
+                <th>Room</th>
+                <th>Invigilator(s)</th>
+              </tr>
+            </thead>
+            <tbody>
+              {planData?.rooms.map((roomGroup) => {
+                const invigilatorNames =
+                  invigilators.find((item) => item.roomId === roomGroup.room.id)?.faculty ?? [];
+                return (
+                  <tr key={roomGroup.room.id}>
+                    <td>
+                      Block {roomGroup.room.block} - Room {roomGroup.room.roomNo}
+                    </td>
+                    <td>{invigilatorNames.join(", ") || "-"}</td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
   );
 }

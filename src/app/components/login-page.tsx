@@ -3,7 +3,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { User, Lock, Mail, Eye, EyeOff } from 'lucide-react';
-import { mockUsers } from '@/lib/mockAuth';
 import { setSession } from '@/lib/session';
 
 type LoginRole = 'student' | 'faculty' | 'admin';
@@ -30,6 +29,9 @@ export function LoginPage({
   const [studentError, setStudentError] = useState<string | null>(null);
   const [facultyError, setFacultyError] = useState<string | null>(null);
   const [adminError, setAdminError] = useState<string | null>(null);
+  const [studentSubmitting, setStudentSubmitting] = useState(false);
+  const [facultySubmitting, setFacultySubmitting] = useState(false);
+  const [adminSubmitting, setAdminSubmitting] = useState(false);
 
   const availableRoles = useMemo(() => {
     return singleRole ? [fallbackRole] : (['student', 'faculty', 'admin'] as LoginRole[]);
@@ -39,64 +41,97 @@ export function LoginPage({
     setActiveTab(fallbackRole);
   }, [fallbackRole]);
 
-  const handleStudentSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleStudentSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setStudentError(null);
-    const normalizedEmail = studentEmail.trim().toLowerCase();
-    const user = mockUsers.find(
-      (entry) =>
-        entry.role === 'student' &&
-        entry.email.toLowerCase() === normalizedEmail &&
-        entry.password === studentPassword
-    );
+    setStudentSubmitting(true);
+    try {
+      const response = await fetch('/api/portal/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: studentEmail.trim(), password: studentPassword }),
+      });
 
-    if (!user) {
-      setStudentError('Invalid student credentials.');
-      return;
+      if (!response.ok) {
+        const data = await response.json().catch(() => ({}));
+        setStudentError(data.error || 'Invalid student credentials.');
+        return;
+      }
+
+      const data = await response.json();
+      const role = String(data.role || '').toLowerCase();
+      if (role !== 'student') {
+        setStudentError('Please use the correct login for your role.');
+        return;
+      }
+
+      setSession({ email: data.email, role: 'student', name: data.name });
+      router.replace('/portal/student');
+    } finally {
+      setStudentSubmitting(false);
     }
-
-    setSession({ email: user.email, role: user.role, name: user.name });
-    router.replace('/portal/student');
   };
 
-  const handleFacultySubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleFacultySubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setFacultyError(null);
-    const normalizedEmail = facultyEmail.trim().toLowerCase();
-    const user = mockUsers.find(
-      (entry) =>
-        entry.role === 'faculty' &&
-        entry.email.toLowerCase() === normalizedEmail &&
-        entry.password === facultyPassword
-    );
+    setFacultySubmitting(true);
+    try {
+      const response = await fetch('/api/portal/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: facultyEmail.trim(), password: facultyPassword }),
+      });
 
-    if (!user) {
-      setFacultyError('Invalid faculty credentials.');
-      return;
+      if (!response.ok) {
+        const data = await response.json().catch(() => ({}));
+        setFacultyError(data.error || 'Invalid faculty credentials.');
+        return;
+      }
+
+      const data = await response.json();
+      const role = String(data.role || '').toLowerCase();
+      if (role !== 'faculty') {
+        setFacultyError('Please use the correct login for your role.');
+        return;
+      }
+
+      setSession({ email: data.email, role: 'faculty', name: data.name });
+      router.replace('/portal/faculty');
+    } finally {
+      setFacultySubmitting(false);
     }
-
-    setSession({ email: user.email, role: user.role, name: user.name });
-    router.replace('/portal/faculty');
   };
 
-  const handleAdminSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleAdminSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setAdminError(null);
-    const normalizedEmail = adminEmail.trim().toLowerCase();
-    const user = mockUsers.find(
-      (entry) =>
-        entry.role === 'admin' &&
-        entry.email.toLowerCase() === normalizedEmail &&
-        entry.password === adminPassword
-    );
+    setAdminSubmitting(true);
+    try {
+      const response = await fetch('/api/portal/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: adminEmail.trim(), password: adminPassword }),
+      });
 
-    if (!user) {
-      setAdminError('Invalid admin credentials.');
-      return;
+      if (!response.ok) {
+        const data = await response.json().catch(() => ({}));
+        setAdminError(data.error || 'Invalid admin credentials.');
+        return;
+      }
+
+      const data = await response.json();
+      const role = String(data.role || '').toLowerCase();
+      if (role !== 'admin') {
+        setAdminError('Please use the correct login for your role.');
+        return;
+      }
+
+      setSession({ email: data.email, role: 'admin', name: data.name });
+      router.replace('/portal/admin');
+    } finally {
+      setAdminSubmitting(false);
     }
-
-    setSession({ email: user.email, role: user.role, name: user.name });
-    router.replace('/portal/admin');
   };
 
   return (
@@ -206,8 +241,9 @@ export function LoginPage({
                 <button
                   type="submit"
                   className="w-full bg-primary text-primary-foreground py-3 rounded-lg hover:bg-primary/90 transition-colors"
+                  disabled={studentSubmitting}
                 >
-                  Login
+                  {studentSubmitting ? 'Signing in...' : 'Login'}
                 </button>
 
                 <div className="text-center text-sm text-muted-foreground">
@@ -339,8 +375,15 @@ export function LoginPage({
                 <button
                   type="submit"
                   className="w-full bg-primary text-primary-foreground py-3 rounded-lg hover:bg-primary/90 transition-colors"
+                  disabled={activeTab === 'faculty' ? facultySubmitting : adminSubmitting}
                 >
-                  Login
+                  {activeTab === 'faculty'
+                    ? facultySubmitting
+                      ? 'Signing in...'
+                      : 'Login'
+                    : adminSubmitting
+                      ? 'Signing in...'
+                      : 'Login'}
                 </button>
 
                 <div className="text-center text-sm text-muted-foreground">

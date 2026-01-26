@@ -1,9 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { use, useEffect, useState } from "react";
-import SritShell from "@/components/SritShell";
 
 type PlanResponse = {
   plan: {
@@ -46,15 +44,19 @@ type OutboxEmail = {
   };
 };
 
+type InvigilatorAssignment = {
+  roomId: string;
+  faculty: string[];
+};
+
 export default function PlanDetail({ params }: { params: Promise<{ planId: string }> }) {
   const { planId } = use(params);
-  const router = useRouter();
   const [planData, setPlanData] = useState<PlanResponse | null>(null);
   const [outbox, setOutbox] = useState<OutboxEmail[]>([]);
+  const [invigilators, setInvigilators] = useState<InvigilatorAssignment[]>([]);
   const [rollNoFilter, setRollNoFilter] = useState("");
   const [status, setStatus] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [isAllowed, setIsAllowed] = useState(false);
 
   const seatColumns = planData?.plan.examType === "SEM" ? [1] : [1, 2];
 
@@ -65,6 +67,7 @@ export default function PlanDetail({ params }: { params: Promise<{ planId: strin
       throw new Error(data.error || "Unable to load plan.");
     }
     setPlanData(data);
+    return data as PlanResponse;
   };
 
   const fetchOutbox = async (rollNo?: string) => {
@@ -77,29 +80,38 @@ export default function PlanDetail({ params }: { params: Promise<{ planId: strin
     setOutbox(data.emails ?? []);
   };
 
-  useEffect(() => {
-    const allowed = localStorage.getItem("sritAdminAuthed") === "true";
-    if (!allowed) {
-      router.replace("/admin/login");
+  const fetchInvigilators = async (sessionId: string) => {
+    const response = await fetch(`/api/sessions/${sessionId}/invigilators`);
+    const data = await response.json().catch(() => null);
+    if (!response.ok) {
       return;
     }
-    setIsAllowed(true);
-  }, [router]);
+    const grouped = new Map<string, string[]>();
+    (data?.invigilators ?? []).forEach((item: any) => {
+      const name = item.facultyProfile?.user?.name ?? "Faculty";
+      const current = grouped.get(item.roomId) ?? [];
+      current.push(name);
+      grouped.set(item.roomId, current);
+    });
+    setInvigilators(
+      Array.from(grouped.entries()).map(([roomId, faculty]) => ({ roomId, faculty })),
+    );
+  };
 
   useEffect(() => {
-    if (!isAllowed) {
-      return;
-    }
     (async () => {
       try {
         setError(null);
-        await fetchPlan();
+        const plan = await fetchPlan();
         await fetchOutbox();
+        if (plan?.plan.sessionId) {
+          await fetchInvigilators(plan.plan.sessionId);
+        }
       } catch (err) {
         setError(err instanceof Error ? err.message : "Unable to load plan.");
       }
     })();
-  }, [isAllowed]);
+  }, []);
 
   const handleCreateOutbox = async () => {
     setStatus("Creating outbox emails...");
@@ -132,6 +144,8 @@ export default function PlanDetail({ params }: { params: Promise<{ planId: strin
         assignment.student,
       ]),
     );
+    const invigilatorNames =
+      invigilators.find((item) => item.roomId === roomGroup.room.id)?.faculty ?? [];
 
     return (
       <div className="plan-grid" key={roomGroup.room.id}>
@@ -151,6 +165,7 @@ export default function PlanDetail({ params }: { params: Promise<{ planId: strin
               {seatColumns.map((seatNo) => (
                 <th key={`year-${seatNo}`}>Seat {seatNo} Year</th>
               ))}
+              <th>Invigilator(s)</th>
             </tr>
           </thead>
           <tbody>
@@ -171,6 +186,11 @@ export default function PlanDetail({ params }: { params: Promise<{ planId: strin
                     const student = assignmentMap.get(`${benchNo}-${seatNo}`);
                     return <td key={`year-${seatNo}`}>{student?.year ?? "-"}</td>;
                   })}
+                  {index === 0 ? (
+                    <td rowSpan={roomGroup.room.benches}>
+                      {invigilatorNames.join(", ") || "-"}
+                    </td>
+                  ) : null}
                 </tr>
               );
             })}
@@ -180,12 +200,8 @@ export default function PlanDetail({ params }: { params: Promise<{ planId: strin
     );
   };
 
-  if (!isAllowed) {
-    return null;
-  }
-
   return (
-    <SritShell title="Seating Plan Preview">
+    <div className="portal-page">
       {error ? <div className="notice" style={{ marginBottom: "1rem" }}>{error}</div> : null}
       {status ? <div className="notice" style={{ marginBottom: "1rem" }}>{status}</div> : null}
 
@@ -202,7 +218,11 @@ export default function PlanDetail({ params }: { params: Promise<{ planId: strin
             <button className="button" onClick={handleCreateOutbox}>
               Create Outbox Emails
             </button>
-            <Link className="button button-outline" href={`/admin/plan/${planId}/print`} target="_blank">
+            <Link
+              className="button button-outline"
+              href={`/portal/admin/examplanning/plan/${planId}/print`}
+              target="_blank"
+            >
               Print Room Sheet
             </Link>
           </div>
@@ -246,6 +266,41 @@ export default function PlanDetail({ params }: { params: Promise<{ planId: strin
           )}
         </div>
       </div>
-    </SritShell>
+
+      <div className="card">
+        <div className="card-title">Invigilator Allocation</div>
+        <div className="card-body">
+          {planData?.rooms.length ? (
+            <div className="portal-table-wrapper">
+              <table className="portal-table">
+                <thead>
+                  <tr>
+                    <th>Room</th>
+                    <th>Invigilator(s)</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {planData.rooms.map((roomGroup) => {
+                    const invigilatorNames =
+                      invigilators.find((item) => item.roomId === roomGroup.room.id)?.faculty ??
+                      [];
+                    return (
+                      <tr key={roomGroup.room.id}>
+                        <td>
+                          Block {roomGroup.room.block} - {roomGroup.room.roomNo}
+                        </td>
+                        <td>{invigilatorNames.join(", ") || "-"}</td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          ) : (
+            <div className="notice">No rooms available.</div>
+          )}
+        </div>
+      </div>
+    </div>
   );
 }

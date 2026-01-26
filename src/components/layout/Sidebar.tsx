@@ -20,7 +20,16 @@ export default function Sidebar({
   onNavigate?: () => void;
   variant?: "desktop" | "mobile";
 }) {
-  const items = [{ label: "Dashboard", href: `/portal/${role}` }];
+  const items =
+    role === "admin"
+      ? [
+          { label: "Dashboard", href: "/portal/admin" },
+          { label: "Exam Planning", href: "/portal/admin/examplanning" },
+          { label: "Departments", href: "/portal/admin/departments" },
+          { label: "Students", href: "/portal/admin/users/students" },
+          { label: "Faculty", href: "/portal/admin/users/faculty" },
+        ]
+      : [{ label: "Dashboard", href: `/portal/${role}` }];
   const containerClass =
     variant === "mobile" ? "portal-sidebar portal-sidebar-mobile" : "portal-sidebar";
 

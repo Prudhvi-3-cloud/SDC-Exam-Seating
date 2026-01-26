@@ -527,6 +527,69 @@ h4 {
   font-size: 0.9rem;
 }
 
+.portal-form-grid {
+  display: grid;
+  gap: 1rem;
+}
+
+.portal-form-columns {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+}
+
+.portal-table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.portal-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+
+.portal-table th,
+.portal-table td {
+  padding: 0.6rem 0.7rem;
+  border-bottom: 1px solid var(--srit-border);
+  text-align: left;
+  white-space: nowrap;
+}
+
+.portal-table th {
+  background: #fff4e8;
+  font-weight: 600;
+}
+
+.portal-link {
+  color: var(--srit-primary);
+  font-weight: 600;
+}
+
+.portal-link:hover {
+  text-decoration: underline;
+}
+
+.portal-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  border-radius: 999px;
+  border: 1px solid var(--srit-border);
+  padding: 0.2rem 0.6rem;
+  font-size: 0.75rem;
+  color: var(--srit-muted);
+  background: #fffaf4;
+}
+
+.portal-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  align-items: center;
+}
+
 .portal-button,
 .portal-button-outline {
   border-radius: 8px;

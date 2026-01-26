@@ -47,7 +47,7 @@ export default function SritShell({
             {subtitle ? <div>{subtitle}</div> : null}
           </div>
           <div className="nav-actions">
-            <Link className="button button-outline" href="/admin">
+            <Link className="button button-outline" href="/portal/admin/examplanning">
               Admin Home
             </Link>
           </div>

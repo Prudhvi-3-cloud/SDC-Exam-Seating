@@ -19,6 +19,21 @@ export async function GET(
     return jsonError("Session not found.", 404);
   }
 
+  const legacyStudentIds = session.sessionStudents.map((entry) => entry.studentId);
+  let selectedPortalStudentIds: string[] = [];
+  if (legacyStudentIds.length) {
+    const legacyStudents = await prisma.student.findMany({
+      where: { id: { in: legacyStudentIds } },
+      select: { rollNo: true },
+    });
+    const rollNos = legacyStudents.map((student) => student.rollNo);
+    const portalProfiles = await prisma.studentProfile.findMany({
+      where: { rollNo: { in: rollNos } },
+      select: { id: true },
+    });
+    selectedPortalStudentIds = portalProfiles.map((profile) => profile.id);
+  }
+
   return NextResponse.json({
     session: {
       id: session.id,
@@ -28,7 +43,8 @@ export async function GET(
     },
     studentCount: session.sessionStudents.length,
     roomCount: session.sessionRooms.length,
-    selectedStudentIds: session.sessionStudents.map((entry) => entry.studentId),
+    selectedStudentIds: legacyStudentIds,
+    selectedPortalStudentIds,
     selectedRoomIds: session.sessionRooms.map((entry) => entry.roomId),
   });
 }

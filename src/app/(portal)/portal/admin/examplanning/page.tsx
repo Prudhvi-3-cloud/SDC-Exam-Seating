@@ -1,25 +1,14 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
-import SritShell from "@/components/SritShell";
+import { useState } from "react";
 
 export default function AdminHome() {
   const router = useRouter();
-  const [isAllowed, setIsAllowed] = useState(false);
   const [examType, setExamType] = useState("MID");
   const [daysCount, setDaysCount] = useState(2);
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    const allowed = localStorage.getItem("sritAdminAuthed") === "true";
-    if (!allowed) {
-      router.replace("/admin/login");
-      return;
-    }
-    setIsAllowed(true);
-  }, [router]);
 
   const handleCreate = async () => {
     setIsSaving(true);
@@ -37,7 +26,7 @@ export default function AdminHome() {
       }
 
       const session = await response.json();
-      router.push(`/admin/session/${session.id}`);
+      router.push(`/portal/admin/examplanning/session/${session.id}`);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong.");
     } finally {
@@ -45,12 +34,8 @@ export default function AdminHome() {
     }
   };
 
-  if (!isAllowed) {
-    return null;
-  }
-
   return (
-    <SritShell title="Exam Seating Arrangement" wide>
+    <div className="portal-page">
       <div className="grid grid-two">
         <div className="card">
           <div className="card-title">Create Exam Session</div>
@@ -105,6 +90,6 @@ export default function AdminHome() {
           </div>
         </div>
       </div>
-    </SritShell>
+    </div>
   );
 }
