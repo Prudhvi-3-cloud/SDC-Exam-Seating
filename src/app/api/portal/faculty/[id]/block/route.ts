@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import prisma from "@/lib/db";
 
@@ -6,15 +6,19 @@ const blockSchema = z.object({
   isBlocked: z.boolean(),
 });
 
-export async function PATCH(request: Request, { params }: { params: { id: string } }) {
+export async function PATCH(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
   const body = await request.json().catch(() => null);
   const parsed = blockSchema.safeParse(body);
   if (!parsed.success) {
     return NextResponse.json({ error: "Invalid request." }, { status: 400 });
   }
 
+  const { id } = await params;
   const pathId = new URL(request.url).pathname.split("/").slice(-2, -1)[0];
-  const facultyId = params.id ?? pathId ?? "";
+  const facultyId = id ?? pathId ?? "";
   const faculty = await prisma.facultyProfile.findUnique({
     where: { id: facultyId },
     include: { user: true },

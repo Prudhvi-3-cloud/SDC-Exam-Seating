@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import prisma from "@/lib/db";
 
@@ -11,15 +11,19 @@ const updateSchema = z
     message: "Missing update fields.",
   });
 
-export async function PATCH(request: Request, { params }: { params: { id: string } }) {
+export async function PATCH(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
   const body = await request.json().catch(() => null);
   const parsed = updateSchema.safeParse(body);
   if (!parsed.success) {
     return NextResponse.json({ error: "Invalid update." }, { status: 400 });
   }
 
+  const { id } = await params;
   const pathId = new URL(request.url).pathname.split("/").pop();
-  const departmentId = params.id ?? pathId ?? "";
+  const departmentId = id ?? pathId ?? "";
 
   const data: { name?: string; code?: string } = {};
   if (parsed.data.name) {
@@ -42,9 +46,13 @@ export async function PATCH(request: Request, { params }: { params: { id: string
   }
 }
 
-export async function DELETE(request: Request, { params }: { params: { id: string } }) {
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const { id } = await params;
   const pathId = new URL(request.url).pathname.split("/").pop();
-  const departmentId = params.id ?? pathId ?? "";
+  const departmentId = id ?? pathId ?? "";
   const studentCount = await prisma.studentProfile.count({ where: { departmentId } });
   const facultyCount = await prisma.facultyProfile.count({ where: { departmentId } });
 

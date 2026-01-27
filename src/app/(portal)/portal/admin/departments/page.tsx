@@ -68,7 +68,7 @@ export default function DepartmentsPage() {
     const values = editValues[deptId];
     if (!values) return;
     if (!values.code.trim() || !values.name.trim()) {
-      setMessage("Code and name are required.");
+      setToast({ message: "Code and name are required.", tone: "error" });
       return;
     }
     const response = await fetch(`/api/portal/departments/${deptId}`, {

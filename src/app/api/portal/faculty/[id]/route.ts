@@ -1,12 +1,16 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/db";
 
 export const runtime = "nodejs";
 
-export async function GET(request: Request, { params }: { params: { id: string } }) {
+export async function GET(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
   try {
+    const { id } = await params;
     const pathId = new URL(request.url).pathname.split("/").pop();
-    const facultyId = params.id ?? pathId ?? "";
+    const facultyId = id ?? pathId ?? "";
     const faculty = await prisma.facultyProfile.findUnique({
       where: { id: facultyId },
       include: {
