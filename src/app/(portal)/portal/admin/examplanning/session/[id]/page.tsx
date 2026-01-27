@@ -72,6 +72,12 @@ export default function SessionDetail({ params }: { params: Promise<{ id: string
   const [versionsPerDay, setVersionsPerDay] = useState(1);
   const [status, setStatus] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [isBootstrapping, setIsBootstrapping] = useState(true);
+  const [isLoadingSession, setIsLoadingSession] = useState(false);
+  const [isLoadingStudents, setIsLoadingStudents] = useState(false);
+  const [isLoadingRooms, setIsLoadingRooms] = useState(false);
+  const [isLoadingFaculty, setIsLoadingFaculty] = useState(false);
+  const [isLoadingPlans, setIsLoadingPlans] = useState(false);
   const [currentStep, setCurrentStep] = useState(0);
   const [isStepBusy, setIsStepBusy] = useState(false);
 
@@ -92,14 +98,19 @@ export default function SessionDetail({ params }: { params: Promise<{ id: string
   const toastClass = error ? "toast toast-error" : "toast toast-success";
 
   const fetchSession = async () => {
-    const response = await fetch(`/api/sessions/${id}`);
-    const data = await response.json();
-    if (!response.ok) {
-      throw new Error(data.error || "Unable to load session.");
+    setIsLoadingSession(true);
+    try {
+      const response = await fetch(`/api/sessions/${id}`);
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        throw new Error(data.error || "Unable to load session.");
+      }
+      setSession(data);
+      setSelectedStudentIds(new Set(data.selectedPortalStudentIds ?? data.selectedStudentIds ?? []));
+      setSelectedRoomIds(new Set(data.selectedRoomIds));
+    } finally {
+      setIsLoadingSession(false);
     }
-    setSession(data);
-    setSelectedStudentIds(new Set(data.selectedPortalStudentIds ?? data.selectedStudentIds ?? []));
-    setSelectedRoomIds(new Set(data.selectedRoomIds));
   };
 
   const fetchDepartments = async () => {
@@ -111,46 +122,66 @@ export default function SessionDetail({ params }: { params: Promise<{ id: string
   };
 
   const fetchStudents = async () => {
-    const query = new URLSearchParams();
-    if (deptFilter) query.set("departmentCode", deptFilter);
-    if (yearFilter) query.set("year", yearFilter);
-    if (sectionFilter) query.set("sectionName", sectionFilter);
-    const response = await fetch(`/api/portal/students?${query.toString()}`);
-    const data = await response.json();
-    if (!response.ok) {
-      throw new Error(data.error || "Unable to load students.");
+    setIsLoadingStudents(true);
+    try {
+      const query = new URLSearchParams();
+      if (deptFilter) query.set("departmentCode", deptFilter);
+      if (yearFilter) query.set("year", yearFilter);
+      if (sectionFilter) query.set("sectionName", sectionFilter);
+      const response = await fetch(`/api/portal/students?${query.toString()}`);
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        throw new Error(data.error || "Unable to load students.");
+      }
+      setStudents(data ?? []);
+    } finally {
+      setIsLoadingStudents(false);
     }
-    setStudents(data ?? []);
   };
 
   const fetchRooms = async () => {
-    const response = await fetch("/api/rooms");
-    const data = await response.json();
-    if (!response.ok) {
-      throw new Error(data.error || "Unable to load rooms.");
+    setIsLoadingRooms(true);
+    try {
+      const response = await fetch("/api/rooms");
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        throw new Error(data.error || "Unable to load rooms.");
+      }
+      setRooms(data.rooms ?? []);
+    } finally {
+      setIsLoadingRooms(false);
     }
-    setRooms(data.rooms ?? []);
   };
 
   const fetchPlans = async () => {
-    const response = await fetch(`/api/plans?sessionId=${id}`);
-    const data = await response.json();
-    if (!response.ok) {
-      throw new Error(data.error || "Unable to load plans.");
+    setIsLoadingPlans(true);
+    try {
+      const response = await fetch(`/api/plans?sessionId=${id}`);
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        throw new Error(data.error || "Unable to load plans.");
+      }
+      setPlans(data.plans ?? []);
+    } finally {
+      setIsLoadingPlans(false);
     }
-    setPlans(data.plans ?? []);
   };
 
   const fetchFaculty = async () => {
-    const query = new URLSearchParams();
-    if (facultyDeptFilter) query.set("departmentCode", facultyDeptFilter);
-    if (facultySearch) query.set("q", facultySearch);
-    const response = await fetch(`/api/portal/faculty?${query.toString()}`);
-    const data = await response.json();
-    if (!response.ok) {
-      throw new Error(data.error || "Unable to load faculty.");
+    setIsLoadingFaculty(true);
+    try {
+      const query = new URLSearchParams();
+      if (facultyDeptFilter) query.set("departmentCode", facultyDeptFilter);
+      if (facultySearch) query.set("q", facultySearch);
+      const response = await fetch(`/api/portal/faculty?${query.toString()}`);
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        throw new Error(data.error || "Unable to load faculty.");
+      }
+      setFaculty(data ?? []);
+    } finally {
+      setIsLoadingFaculty(false);
     }
-    setFaculty(data ?? []);
   };
 
   const fetchInvigilators = async () => {
@@ -164,6 +195,7 @@ export default function SessionDetail({ params }: { params: Promise<{ id: string
   useEffect(() => {
     (async () => {
       try {
+        setIsBootstrapping(true);
         setError(null);
         await Promise.all([
           fetchSession(),
@@ -176,6 +208,8 @@ export default function SessionDetail({ params }: { params: Promise<{ id: string
         await fetchFaculty();
       } catch (err) {
         setError(err instanceof Error ? err.message : "Unable to load data.");
+      } finally {
+        setIsBootstrapping(false);
       }
     })();
   }, []);
@@ -378,6 +412,16 @@ export default function SessionDetail({ params }: { params: Promise<{ id: string
     </div>
   );
 
+  if (isBootstrapping && !session && isLoadingSession) {
+    return (
+      <div className="portal-page">
+        <div className="portal-card">
+          <p className="portal-card-note">Loading session details...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="portal-page">
       {toastMessage ? (
@@ -490,21 +534,27 @@ export default function SessionDetail({ params }: { params: Promise<{ id: string
                   </button>
                 </div>
                 <div className="selection-list" style={{ marginTop: "1rem" }}>
-                  {students.map((student) => (
-                    <label key={student.id} className="list-item">
-                      <div>
-                        <strong>{student.rollNo}</strong> - {student.user.name}
-                        <div style={{ fontSize: "0.8rem", color: "#666" }}>
-                          {student.department.code} | Year {student.year} | Section {student.section.name}
+                  {isLoadingStudents ? (
+                    <div className="portal-card-note">Loading students...</div>
+                  ) : students.length ? (
+                    students.map((student) => (
+                      <label key={student.id} className="list-item">
+                        <div>
+                          <strong>{student.rollNo}</strong> - {student.user.name}
+                          <div style={{ fontSize: "0.8rem", color: "#666" }}>
+                            {student.department.code} | Year {student.year} | Section {student.section.name}
+                          </div>
                         </div>
-                      </div>
-                      <input
-                        type="checkbox"
-                        checked={selectedStudentIds.has(student.id)}
-                        onChange={() => toggleStudent(student.id)}
-                      />
-                    </label>
-                  ))}
+                        <input
+                          type="checkbox"
+                          checked={selectedStudentIds.has(student.id)}
+                          onChange={() => toggleStudent(student.id)}
+                        />
+                      </label>
+                    ))
+                  ) : (
+                    <div className="portal-empty-state">No students match the selected filters.</div>
+                  )}
                 </div>
                 <StepFooter
                   onNext={handleNextFromStudents}
@@ -519,26 +569,32 @@ export default function SessionDetail({ params }: { params: Promise<{ id: string
               <div className="card-title">Step 2: Select Rooms</div>
               <div className="card-body">
                 <div className="selection-list">
-                  {rooms.map((room) => {
-                    const roomSeats = room.benches * seatMultiplier;
-                    return (
-                      <label key={room.id} className="list-item">
-                        <div>
-                          <strong>
-                            Block {room.block} - {room.roomNo}
-                          </strong>
-                          <div style={{ fontSize: "0.8rem", color: "#666" }}>
-                            {room.benches} benches | {roomSeats} seats
+                  {isLoadingRooms ? (
+                    <div className="portal-card-note">Loading rooms...</div>
+                  ) : rooms.length ? (
+                    rooms.map((room) => {
+                      const roomSeats = room.benches * seatMultiplier;
+                      return (
+                        <label key={room.id} className="list-item">
+                          <div>
+                            <strong>
+                              Block {room.block} - {room.roomNo}
+                            </strong>
+                            <div style={{ fontSize: "0.8rem", color: "#666" }}>
+                              {room.benches} benches | {roomSeats} seats
+                            </div>
                           </div>
-                        </div>
-                        <input
-                          type="checkbox"
-                          checked={selectedRoomIds.has(room.id)}
-                          onChange={() => toggleRoom(room.id)}
-                        />
-                      </label>
-                    );
-                  })}
+                          <input
+                            type="checkbox"
+                            checked={selectedRoomIds.has(room.id)}
+                            onChange={() => toggleRoom(room.id)}
+                          />
+                        </label>
+                      );
+                    })
+                  ) : (
+                    <div className="portal-empty-state">No rooms available. Add rooms first.</div>
+                  )}
                 </div>
                 <div className="section-actions">
                   <button className="button" onClick={saveRooms}>
@@ -593,21 +649,27 @@ export default function SessionDetail({ params }: { params: Promise<{ id: string
                   </span>
                 </div>
                 <div className="selection-list" style={{ marginTop: "1rem" }}>
-                  {faculty.map((member) => (
-                    <label key={member.id} className="list-item">
-                      <div>
-                        <strong>{member.user.name}</strong>
-                        <div style={{ fontSize: "0.8rem", color: "#666" }}>
-                          {member.department.code} | {member.user.email}
+                  {isLoadingFaculty ? (
+                    <div className="portal-card-note">Loading faculty...</div>
+                  ) : faculty.length ? (
+                    faculty.map((member) => (
+                      <label key={member.id} className="list-item">
+                        <div>
+                          <strong>{member.user.name}</strong>
+                          <div style={{ fontSize: "0.8rem", color: "#666" }}>
+                            {member.department.code} | {member.user.email}
+                          </div>
                         </div>
-                      </div>
-                      <input
-                        type="checkbox"
-                        checked={selectedFacultyIds.has(member.id)}
-                        onChange={() => toggleFaculty(member.id)}
-                      />
-                    </label>
-                  ))}
+                        <input
+                          type="checkbox"
+                          checked={selectedFacultyIds.has(member.id)}
+                          onChange={() => toggleFaculty(member.id)}
+                        />
+                      </label>
+                    ))
+                  ) : (
+                    <div className="portal-empty-state">No faculty found for the selected filters.</div>
+                  )}
                 </div>
                 <StepFooter
                   onBack={() => setCurrentStep(1)}
@@ -645,7 +707,9 @@ export default function SessionDetail({ params }: { params: Promise<{ id: string
                 </div>
                 <div>
                   <p className="kicker">Plans</p>
-                  {plans.length === 0 ? (
+                  {isLoadingPlans ? (
+                    <div className="notice">Loading plans...</div>
+                  ) : plans.length === 0 ? (
                     <div className="notice">No plans generated yet.</div>
                   ) : (
                     <ul>

@@ -139,6 +139,11 @@ export default function StudentsAddPage() {
       return;
     }
 
+    if (!bulkPreview.length) {
+      setBulkMessage("Upload a sheet first.");
+      return;
+    }
+
     const payload = {
       rows: bulkPreview.map((row) => ({
         rollNo: row.rollNo,
@@ -150,6 +155,13 @@ export default function StudentsAddPage() {
         password: row.password,
       })),
     };
+
+    const confirmed = window.confirm(
+      `Submit bulk import for ${payload.rows.length} students? This will create portal accounts.`
+    );
+    if (!confirmed) {
+      return;
+    }
 
     setIsSubmitting(true);
     const response = await fetch("/api/portal/students/bulk", {

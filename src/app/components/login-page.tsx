@@ -139,8 +139,12 @@ export function LoginPage({
       <div className="max-w-md w-full">
         {/* Logo and Title */}
         <div className="text-center mb-8">
-          <div className="w-20 h-20 bg-primary rounded-full flex items-center justify-center mx-auto mb-4">
-            <span className="text-3xl text-primary-foreground">SR</span>
+          <div className="w-16 h-16 sm:w-20 sm:h-20 mx-auto mb-4">
+            <img
+              src="/srit-logo.png"
+              alt="SRIT logo"
+              className="w-full h-full object-contain"
+            />
           </div>
           <h1 className="text-3xl mb-2">Welcome to SRIT</h1>
           <p className="text-muted-foreground">Please login to continue</p>

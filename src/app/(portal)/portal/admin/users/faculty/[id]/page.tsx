@@ -16,23 +16,32 @@ export default function FacultyDetailPage() {
   const facultyId = params?.id as string;
   const [faculty, setFaculty] = useState<FacultyDetail | null>(null);
   const [message, setMessage] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
   const [toast, setToast] = useState<{ message: string; tone: "success" | "error" } | null>(
     null
   );
 
   const loadFaculty = async () => {
-    const response = await fetch(`/api/portal/faculty/${facultyId}`);
-    if (!response.ok) {
-      const data = await response.json().catch(() => ({}));
-      setMessage(data.error || "Unable to load faculty.");
-      return;
+    setIsLoading(true);
+    setMessage(null);
+    try {
+      const response = await fetch(`/api/portal/faculty/${facultyId}`);
+      if (!response.ok) {
+        const data = await response.json().catch(() => ({}));
+        setMessage(data.error || "Unable to load faculty.");
+        setFaculty(null);
+        return;
+      }
+      const data = await response.json().catch(() => null);
+      if (!data) {
+        setMessage("Faculty data not available.");
+        setFaculty(null);
+        return;
+      }
+      setFaculty(data);
+    } finally {
+      setIsLoading(false);
     }
-    const data = await response.json().catch(() => null);
-    if (!data) {
-      setMessage("Faculty data not available.");
-      return;
-    }
-    setFaculty(data);
   };
 
   useEffect(() => {
@@ -44,10 +53,19 @@ export default function FacultyDetailPage() {
   const handleToggleBlock = async () => {
     if (!faculty) return;
     setMessage(null);
+    const nextBlockedState = !faculty.user.isBlocked;
+    const confirmed = window.confirm(
+      nextBlockedState
+        ? `Block ${faculty.user.name}? They will not be able to log in.`
+        : `Unblock ${faculty.user.name}? They will regain access.`
+    );
+    if (!confirmed) {
+      return;
+    }
     const response = await fetch(`/api/portal/faculty/${faculty.id}/block`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ isBlocked: !faculty.user.isBlocked }),
+      body: JSON.stringify({ isBlocked: nextBlockedState }),
     });
 
     if (!response.ok) {
@@ -64,10 +82,19 @@ export default function FacultyDetailPage() {
     });
   };
 
-  if (!faculty) {
+  if (isLoading && !faculty) {
     return (
       <div className="portal-page">
         <p className="portal-card-note">Loading faculty...</p>
+      </div>
+    );
+  }
+
+  if (!faculty) {
+    return (
+      <div className="portal-page">
+        {message ? <div className="portal-notice">{message}</div> : null}
+        <div className="portal-empty-state">Faculty profile not found or unavailable.</div>
       </div>
     );
   }

@@ -23,10 +23,13 @@ type Student = {
 export default function StudentsAdminPage() {
   const [departments, setDepartments] = useState<Department[]>([]);
   const [students, setStudents] = useState<Student[]>([]);
+  const [isLoadingDepartments, setIsLoadingDepartments] = useState(false);
+  const [isLoadingStudents, setIsLoadingStudents] = useState(false);
   const [year, setYear] = useState<string>("");
   const [departmentCode, setDepartmentCode] = useState<string>("");
   const [sectionName, setSectionName] = useState<string>("");
   const [query, setQuery] = useState<string>("");
+  const [error, setError] = useState<string | null>(null);
   const [toast, setToast] = useState<{ message: string; tone: "success" | "error" } | null>(
     null
   );
@@ -44,21 +47,44 @@ export default function StudentsAdminPage() {
   }, [departments, departmentCode, year]);
 
   const loadDepartments = async () => {
-    const response = await fetch("/api/portal/departments");
-    const data = await response.json();
-    setDepartments(data);
+    setIsLoadingDepartments(true);
+    setError(null);
+    try {
+      const response = await fetch("/api/portal/departments");
+      const data = await response.json().catch(() => []);
+      if (!response.ok) {
+        throw new Error("Unable to load departments.");
+      }
+      setDepartments(data);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Unable to load departments.");
+    } finally {
+      setIsLoadingDepartments(false);
+    }
   };
 
   const loadStudents = async () => {
+    setIsLoadingStudents(true);
+    setError(null);
     const params = new URLSearchParams();
     if (year) params.set("year", year);
     if (departmentCode) params.set("departmentCode", departmentCode);
     if (sectionName) params.set("sectionName", sectionName);
     if (query) params.set("q", query);
 
-    const response = await fetch(`/api/portal/students?${params.toString()}`);
-    const data = await response.json();
-    setStudents(data);
+    try {
+      const response = await fetch(`/api/portal/students?${params.toString()}`);
+      const data = await response.json().catch(() => []);
+      if (!response.ok) {
+        throw new Error(data.error || "Unable to load students.");
+      }
+      setStudents(data);
+    } catch (err) {
+      setStudents([]);
+      setError(err instanceof Error ? err.message : "Unable to load students.");
+    } finally {
+      setIsLoadingStudents(false);
+    }
   };
 
   useEffect(() => {
@@ -71,10 +97,19 @@ export default function StudentsAdminPage() {
 
   const handleToggleBlock = async (student: Student) => {
     setToast(null);
+    const nextBlockedState = !student.user.isBlocked;
+    const confirmed = window.confirm(
+      nextBlockedState
+        ? `Block ${student.user.name}? They will not be able to log in.`
+        : `Unblock ${student.user.name}? They will regain access.`
+    );
+    if (!confirmed) {
+      return;
+    }
     const response = await fetch(`/api/portal/students/${student.id}/block`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ isBlocked: !student.user.isBlocked }),
+      body: JSON.stringify({ isBlocked: nextBlockedState }),
     });
 
     if (!response.ok) {
@@ -102,6 +137,8 @@ export default function StudentsAdminPage() {
         <h1 className="portal-page-title">Students</h1>
         <p className="portal-page-subtitle">Filter and manage student accounts.</p>
       </div>
+
+      {error ? <div className="portal-notice">{error}</div> : null}
 
       <div className="portal-card">
         <h3>Filters</h3>
@@ -132,6 +169,7 @@ export default function StudentsAdminPage() {
                 setDepartmentCode(event.target.value);
                 setSectionName("");
               }}
+              disabled={isLoadingDepartments}
             >
               <option value="">All</option>
               {departments.map((dept) => (
@@ -148,6 +186,7 @@ export default function StudentsAdminPage() {
               className="select"
               value={sectionName}
               onChange={(event) => setSectionName(event.target.value)}
+              disabled={isLoadingDepartments}
             >
               <option value="">All</option>
               {sections.map((section) => (
@@ -192,37 +231,51 @@ export default function StudentsAdminPage() {
               </tr>
             </thead>
             <tbody>
-              {students.map((student) => (
-                <tr key={student.id} onClick={() => setSelectedStudent(student)}>
-                  <td>{student.rollNo}</td>
-                  <td>
-                    <Link className="portal-link" href={`/portal/admin/users/students/${student.id}`}>
-                      {student.user.name}
-                    </Link>
-                  </td>
-                  <td>{student.user.email}</td>
-                  <td>{student.year}</td>
-                  <td>{student.department.code}</td>
-                  <td>{student.section.name}</td>
-                  <td>
-                    <span className="portal-pill">
-                      {student.user.isBlocked ? "Blocked" : "Active"}
-                    </span>
-                  </td>
-                  <td>
-                    <button
-                      type="button"
-                      className="portal-button-outline"
-                      onClick={(event) => {
-                        event.stopPropagation();
-                        handleToggleBlock(student);
-                      }}
-                    >
-                      {student.user.isBlocked ? "Unblock" : "Block"}
-                    </button>
+              {isLoadingStudents ? (
+                <tr>
+                  <td colSpan={8} className="portal-card-note">
+                    Loading students...
                   </td>
                 </tr>
-              ))}
+              ) : students.length ? (
+                students.map((student) => (
+                  <tr key={student.id} onClick={() => setSelectedStudent(student)}>
+                    <td>{student.rollNo}</td>
+                    <td>
+                      <Link className="portal-link" href={`/portal/admin/users/students/${student.id}`}>
+                        {student.user.name}
+                      </Link>
+                    </td>
+                    <td>{student.user.email}</td>
+                    <td>{student.year}</td>
+                    <td>{student.department.code}</td>
+                    <td>{student.section.name}</td>
+                    <td>
+                      <span className="portal-pill">
+                        {student.user.isBlocked ? "Blocked" : "Active"}
+                      </span>
+                    </td>
+                    <td>
+                      <button
+                        type="button"
+                        className="portal-button-outline"
+                        onClick={(event) => {
+                          event.stopPropagation();
+                          handleToggleBlock(student);
+                        }}
+                      >
+                        {student.user.isBlocked ? "Unblock" : "Block"}
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan={8}>
+                    <div className="portal-empty-state">No students found for the selected filters.</div>
+                  </td>
+                </tr>
+              )}
             </tbody>
           </table>
         </div>

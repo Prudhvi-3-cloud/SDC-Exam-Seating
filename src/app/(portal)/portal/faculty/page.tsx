@@ -29,6 +29,8 @@ type FacultyProfileResponse = {
   };
 };
 
+const bullet = "\u2022";
+
 export default function FacultyDashboard() {
   const [data, setData] = useState<FacultyProfileResponse | null>(null);
   const [loading, setLoading] = useState(true);
@@ -111,7 +113,7 @@ export default function FacultyDashboard() {
             <div className="student-profile-item">
               <div className="student-profile-label">Department</div>
               <div className="student-profile-value">
-                {data.faculty.department.code} • {data.faculty.department.name}
+                {data.faculty.department.code} {bullet} {data.faculty.department.name}
               </div>
             </div>
             <div className="student-profile-item">
@@ -123,7 +125,7 @@ export default function FacultyDashboard() {
           <div className="portal-actions" style={{ marginTop: "0.9rem" }}>
             {data.faculty.allowedSections.map((section) => (
               <span key={section.id} className="portal-pill">
-                Year {section.year} • Section {section.name}
+                Year {section.year} {bullet} Section {section.name}
               </span>
             ))}
           </div>

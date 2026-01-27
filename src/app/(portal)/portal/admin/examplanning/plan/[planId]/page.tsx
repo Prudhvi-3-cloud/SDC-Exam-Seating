@@ -57,45 +57,63 @@ export default function PlanDetail({ params }: { params: Promise<{ planId: strin
   const [rollNoFilter, setRollNoFilter] = useState("");
   const [status, setStatus] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [isLoadingPlan, setIsLoadingPlan] = useState(true);
+  const [isLoadingOutbox, setIsLoadingOutbox] = useState(false);
+  const [isLoadingInvigilators, setIsLoadingInvigilators] = useState(false);
 
   const seatColumns = planData?.plan.examType === "SEM" ? [1] : [1, 2];
 
   const fetchPlan = async () => {
-    const response = await fetch(`/api/plans/${planId}`);
-    const data = await response.json();
-    if (!response.ok) {
-      throw new Error(data.error || "Unable to load plan.");
+    setIsLoadingPlan(true);
+    try {
+      const response = await fetch(`/api/plans/${planId}`);
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        throw new Error(data.error || "Unable to load plan.");
+      }
+      setPlanData(data as PlanResponse);
+      return data as PlanResponse;
+    } finally {
+      setIsLoadingPlan(false);
     }
-    setPlanData(data);
-    return data as PlanResponse;
   };
 
   const fetchOutbox = async (rollNo?: string) => {
+    setIsLoadingOutbox(true);
     const query = rollNo ? `?rollNo=${encodeURIComponent(rollNo)}` : "";
-    const response = await fetch(`/api/plans/${planId}/outbox${query}`);
-    const data = await response.json();
-    if (!response.ok) {
-      throw new Error(data.error || "Unable to load outbox emails.");
+    try {
+      const response = await fetch(`/api/plans/${planId}/outbox${query}`);
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        throw new Error(data.error || "Unable to load outbox emails.");
+      }
+      setOutbox(data.emails ?? []);
+    } finally {
+      setIsLoadingOutbox(false);
     }
-    setOutbox(data.emails ?? []);
   };
 
   const fetchInvigilators = async (sessionId: string) => {
-    const response = await fetch(`/api/sessions/${sessionId}/invigilators`);
-    const data = await response.json().catch(() => null);
-    if (!response.ok) {
-      return;
+    setIsLoadingInvigilators(true);
+    try {
+      const response = await fetch(`/api/sessions/${sessionId}/invigilators`);
+      const data = await response.json().catch(() => null);
+      if (!response.ok) {
+        return;
+      }
+      const grouped = new Map<string, string[]>();
+      (data?.invigilators ?? []).forEach((item: { roomId: string; facultyProfile?: { user?: { name?: string } } }) => {
+        const name = item.facultyProfile?.user?.name ?? "Faculty";
+        const current = grouped.get(item.roomId) ?? [];
+        current.push(name);
+        grouped.set(item.roomId, current);
+      });
+      setInvigilators(
+        Array.from(grouped.entries()).map(([roomId, faculty]) => ({ roomId, faculty })),
+      );
+    } finally {
+      setIsLoadingInvigilators(false);
     }
-    const grouped = new Map<string, string[]>();
-    (data?.invigilators ?? []).forEach((item: any) => {
-      const name = item.facultyProfile?.user?.name ?? "Faculty";
-      const current = grouped.get(item.roomId) ?? [];
-      current.push(name);
-      grouped.set(item.roomId, current);
-    });
-    setInvigilators(
-      Array.from(grouped.entries()).map(([roomId, faculty]) => ({ roomId, faculty })),
-    );
   };
 
   useEffect(() => {
@@ -152,50 +170,52 @@ export default function PlanDetail({ params }: { params: Promise<{ planId: strin
         <div className="plan-room-header">
           Block {roomGroup.room.block} - Room {roomGroup.room.roomNo} | {roomGroup.room.benches} benches
         </div>
-        <table>
-          <thead>
-            <tr>
-              <th>Bench</th>
-              {seatColumns.map((seatNo) => (
-                <th key={`roll-${seatNo}`}>Seat {seatNo} Roll</th>
-              ))}
-              {seatColumns.map((seatNo) => (
-                <th key={`dept-${seatNo}`}>Seat {seatNo} Dept</th>
-              ))}
-              {seatColumns.map((seatNo) => (
-                <th key={`year-${seatNo}`}>Seat {seatNo} Year</th>
-              ))}
-              <th>Invigilator(s)</th>
-            </tr>
-          </thead>
-          <tbody>
-            {Array.from({ length: roomGroup.room.benches }).map((_, index) => {
-              const benchNo = index + 1;
-              return (
-                <tr key={benchNo}>
-                  <td>{benchNo}</td>
-                  {seatColumns.map((seatNo) => {
-                    const student = assignmentMap.get(`${benchNo}-${seatNo}`);
-                    return <td key={`roll-${seatNo}`}>{student?.rollNo ?? "-"}</td>;
-                  })}
-                  {seatColumns.map((seatNo) => {
-                    const student = assignmentMap.get(`${benchNo}-${seatNo}`);
-                    return <td key={`dept-${seatNo}`}>{student?.dept ?? "-"}</td>;
-                  })}
-                  {seatColumns.map((seatNo) => {
-                    const student = assignmentMap.get(`${benchNo}-${seatNo}`);
-                    return <td key={`year-${seatNo}`}>{student?.year ?? "-"}</td>;
-                  })}
-                  {index === 0 ? (
-                    <td rowSpan={roomGroup.room.benches}>
-                      {invigilatorNames.join(", ") || "-"}
-                    </td>
-                  ) : null}
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
+        <div className="plan-grid-scroll">
+          <table>
+            <thead>
+              <tr>
+                <th>Bench</th>
+                {seatColumns.map((seatNo) => (
+                  <th key={`roll-${seatNo}`}>Seat {seatNo} Roll</th>
+                ))}
+                {seatColumns.map((seatNo) => (
+                  <th key={`dept-${seatNo}`}>Seat {seatNo} Dept</th>
+                ))}
+                {seatColumns.map((seatNo) => (
+                  <th key={`year-${seatNo}`}>Seat {seatNo} Year</th>
+                ))}
+                <th>Invigilator(s)</th>
+              </tr>
+            </thead>
+            <tbody>
+              {Array.from({ length: roomGroup.room.benches }).map((_, index) => {
+                const benchNo = index + 1;
+                return (
+                  <tr key={benchNo}>
+                    <td>{benchNo}</td>
+                    {seatColumns.map((seatNo) => {
+                      const student = assignmentMap.get(`${benchNo}-${seatNo}`);
+                      return <td key={`roll-${seatNo}`}>{student?.rollNo ?? "-"}</td>;
+                    })}
+                    {seatColumns.map((seatNo) => {
+                      const student = assignmentMap.get(`${benchNo}-${seatNo}`);
+                      return <td key={`dept-${seatNo}`}>{student?.dept ?? "-"}</td>;
+                    })}
+                    {seatColumns.map((seatNo) => {
+                      const student = assignmentMap.get(`${benchNo}-${seatNo}`);
+                      return <td key={`year-${seatNo}`}>{student?.year ?? "-"}</td>;
+                    })}
+                    {index === 0 ? (
+                      <td rowSpan={roomGroup.room.benches}>
+                        {invigilatorNames.join(", ") || "-"}
+                      </td>
+                    ) : null}
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
       </div>
     );
   };
@@ -204,6 +224,14 @@ export default function PlanDetail({ params }: { params: Promise<{ planId: strin
     <div className="portal-page">
       {error ? <div className="notice" style={{ marginBottom: "1rem" }}>{error}</div> : null}
       {status ? <div className="notice" style={{ marginBottom: "1rem" }}>{status}</div> : null}
+
+      {isLoadingPlan && !planData ? (
+        <div className="card">
+          <div className="card-body">
+            <p className="portal-card-note">Loading plan details...</p>
+          </div>
+        </div>
+      ) : null}
 
       <div className="card">
         <div className="card-title">Plan Overview</div>
@@ -232,13 +260,22 @@ export default function PlanDetail({ params }: { params: Promise<{ planId: strin
       <div className="card">
         <div className="card-title">Room-wise Seating Grid</div>
         <div className="card-body">
-          {planData?.rooms.map(renderSeatTable)}
+          {isLoadingPlan ? (
+            <p className="portal-card-note">Loading seating grid...</p>
+          ) : planData?.rooms?.length ? (
+            planData.rooms.map(renderSeatTable)
+          ) : (
+            <div className="portal-empty-state">No rooms found for this plan.</div>
+          )}
         </div>
       </div>
 
       <div className="card">
         <div className="card-title">Outbox Emails (Dry Run)</div>
         <div className="card-body">
+          <div className="notice" style={{ marginBottom: "1rem" }}>
+            Dry Run - Emails are not actually sent. This outbox is for review only.
+          </div>
           <div className="grid grid-two" style={{ marginBottom: "1rem" }}>
             <input
               className="input"
@@ -250,8 +287,12 @@ export default function PlanDetail({ params }: { params: Promise<{ planId: strin
               Filter
             </button>
           </div>
-          {outbox.length === 0 ? (
-            <div className="notice">No outbox emails yet.</div>
+          {isLoadingOutbox ? (
+            <div className="notice">Loading outbox emails...</div>
+          ) : outbox.length === 0 ? (
+            <div className="notice">
+              No outbox emails yet. Click “Create Outbox Emails” to generate the dry run.
+            </div>
           ) : (
             <div className="grid">
               {outbox.map((email) => (
@@ -270,7 +311,9 @@ export default function PlanDetail({ params }: { params: Promise<{ planId: strin
       <div className="card">
         <div className="card-title">Invigilator Allocation</div>
         <div className="card-body">
-          {planData?.rooms.length ? (
+          {isLoadingInvigilators && !planData?.rooms?.length ? (
+            <p className="portal-card-note">Loading invigilator allocation...</p>
+          ) : planData?.rooms.length ? (
             <div className="portal-table-wrapper">
               <table className="portal-table">
                 <thead>

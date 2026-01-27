@@ -1,4 +1,4 @@
-# Phase 4 – Faculty Portal (Write Operations)
+# Phase 4 - Faculty Portal (Write Operations)
 
 Phase 4 introduces faculty-only workflows for attendance and remarks while preserving all existing admin, exam-planning, and student read-only behavior.
 

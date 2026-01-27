@@ -28,6 +28,21 @@ export async function POST(
     return jsonError("Session not found.", 404);
   }
 
+  const existingPlans = await prisma.seatingPlan.findMany({
+    where: { sessionId: session.id },
+    select: { dayIndex: true, version: true },
+    orderBy: [{ dayIndex: "asc" }, { version: "asc" }],
+  });
+
+  if (existingPlans.length) {
+    const daysWithPlans = Array.from(new Set(existingPlans.map((plan) => plan.dayIndex)));
+    const dayList = daysWithPlans.map((day) => `Day ${day}`).join(", ");
+    return jsonError(
+      `A plan already exists for ${dayList}. Create a new version or delete the old one.`,
+      409,
+    );
+  }
+
   const versions = parsed.data.versionsPerDay ?? 1;
   const createdPlans = [] as { id: string; dayIndex: number; version: number }[];
 
@@ -40,6 +55,28 @@ export async function POST(
     }
   } catch (error) {
     const message = error instanceof Error ? error.message : "Generation failed.";
+    const isCapacityError = message.toLowerCase().includes("insufficient capacity");
+    if (isCapacityError) {
+      const [selectedStudentsCount, selectedRooms] = await Promise.all([
+        prisma.sessionStudent.count({ where: { sessionId: session.id } }),
+        prisma.sessionRoom.findMany({
+          where: { sessionId: session.id },
+          include: { room: true },
+        }),
+      ]);
+
+      const totalSeats = selectedRooms.reduce((sum, sessionRoom) => {
+        const seatsPerBench = session.examType === "MID" ? Math.min(2, sessionRoom.room.seatsPerBench) : 1;
+        return sum + sessionRoom.room.benches * seatsPerBench;
+      }, 0);
+
+      const deficit = Math.max(0, selectedStudentsCount - totalSeats);
+      return jsonError(
+        `Insufficient capacity: ${selectedStudentsCount} students, ${totalSeats} seats, deficit ${deficit}.`,
+        400,
+      );
+    }
+
     return jsonError(message);
   }
 

@@ -47,6 +47,8 @@ const dateFormatter = new Intl.DateTimeFormat("en-IN", {
   year: "numeric",
 });
 
+const bullet = "\u2022";
+
 function getTodayInputValue() {
   const today = new Date();
   const year = today.getFullYear();
@@ -309,7 +311,7 @@ export default function FacultyAttendancePage() {
                 {sectionsForYear.length ? null : <option value="">No sections</option>}
                 {sectionsForYear.map((section) => (
                   <option key={section.id} value={section.id}>
-                    {section.department.code} • Year {section.year} • Section {section.name}
+                    {section.department.code} {bullet} Year {section.year} {bullet} Section {section.name}
                   </option>
                 ))}
               </select>
@@ -331,7 +333,7 @@ export default function FacultyAttendancePage() {
             <div className="portal-card-note">
               {sectionsLoading ? "Loading sections..." : null}
               {!sectionsLoading && selectedSection
-                ? `Department ${selectedSection.department.code} • Year ${selectedSection.year} • Section ${selectedSection.name}`
+                ? `Department ${selectedSection.department.code} ${bullet} Year ${selectedSection.year} ${bullet} Section ${selectedSection.name}`
                 : null}
             </div>
             <button className="portal-button" type="submit" disabled={saving || studentsLoading || !students.length}>

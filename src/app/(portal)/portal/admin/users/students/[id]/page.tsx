@@ -18,23 +18,32 @@ export default function StudentDetailPage() {
   const studentId = params?.id as string;
   const [student, setStudent] = useState<StudentDetail | null>(null);
   const [message, setMessage] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
   const [toast, setToast] = useState<{ message: string; tone: "success" | "error" } | null>(
     null
   );
 
   const loadStudent = async () => {
-    const response = await fetch(`/api/portal/students/${studentId}`);
-    if (!response.ok) {
-      const data = await response.json().catch(() => ({}));
-      setMessage(data.error || "Unable to load student.");
-      return;
+    setIsLoading(true);
+    setMessage(null);
+    try {
+      const response = await fetch(`/api/portal/students/${studentId}`);
+      if (!response.ok) {
+        const data = await response.json().catch(() => ({}));
+        setMessage(data.error || "Unable to load student.");
+        setStudent(null);
+        return;
+      }
+      const data = await response.json().catch(() => null);
+      if (!data) {
+        setMessage("Student data not available.");
+        setStudent(null);
+        return;
+      }
+      setStudent(data);
+    } finally {
+      setIsLoading(false);
     }
-    const data = await response.json().catch(() => null);
-    if (!data) {
-      setMessage("Student data not available.");
-      return;
-    }
-    setStudent(data);
   };
 
   useEffect(() => {
@@ -46,10 +55,19 @@ export default function StudentDetailPage() {
   const handleToggleBlock = async () => {
     if (!student) return;
     setMessage(null);
+    const nextBlockedState = !student.user.isBlocked;
+    const confirmed = window.confirm(
+      nextBlockedState
+        ? `Block ${student.user.name}? They will not be able to log in.`
+        : `Unblock ${student.user.name}? They will regain access.`
+    );
+    if (!confirmed) {
+      return;
+    }
     const response = await fetch(`/api/portal/students/${student.id}/block`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ isBlocked: !student.user.isBlocked }),
+      body: JSON.stringify({ isBlocked: nextBlockedState }),
     });
 
     if (!response.ok) {
@@ -66,10 +84,19 @@ export default function StudentDetailPage() {
     });
   };
 
-  if (!student) {
+  if (isLoading && !student) {
     return (
       <div className="portal-page">
         <p className="portal-card-note">Loading student...</p>
+      </div>
+    );
+  }
+
+  if (!student) {
+    return (
+      <div className="portal-page">
+        {message ? <div className="portal-notice">{message}</div> : null}
+        <div className="portal-empty-state">Student not found or unavailable.</div>
       </div>
     );
   }

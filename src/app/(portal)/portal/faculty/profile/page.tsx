@@ -28,6 +28,8 @@ type FacultyProfileResponse = {
   };
 };
 
+const bullet = "\u2022";
+
 export default function FacultyProfilePage() {
   const [data, setData] = useState<FacultyProfileResponse | null>(null);
   const [loading, setLoading] = useState(true);
@@ -73,7 +75,7 @@ export default function FacultyProfilePage() {
     return [
       { label: "Name", value: data.faculty.name },
       { label: "Email", value: data.faculty.email },
-      { label: "Department", value: `${data.faculty.department.code} • ${data.faculty.department.name}` },
+      { label: "Department", value: `${data.faculty.department.code} ${bullet} ${data.faculty.department.name}` },
     ];
   }, [data]);
 
@@ -115,7 +117,7 @@ export default function FacultyProfilePage() {
           <div className="portal-actions" style={{ marginTop: "0.75rem" }}>
             {data.faculty.allowedSections.map((section) => (
               <span key={section.id} className="portal-pill">
-                {section.department.code} • Year {section.year} • Section {section.name}
+                {section.department.code} {bullet} Year {section.year} {bullet} Section {section.name}
               </span>
             ))}
           </div>
@@ -128,4 +130,3 @@ export default function FacultyProfilePage() {
     </div>
   );
 }
-

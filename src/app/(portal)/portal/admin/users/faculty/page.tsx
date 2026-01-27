@@ -19,27 +19,53 @@ type Faculty = {
 
 export default function FacultyAdminPage() {
   const [departments, setDepartments] = useState<Department[]>([]);
+  const [isLoadingDepartments, setIsLoadingDepartments] = useState(false);
   const [departmentCode, setDepartmentCode] = useState<string>("");
   const [query, setQuery] = useState<string>("");
   const [faculty, setFaculty] = useState<Faculty[]>([]);
+  const [isLoadingFaculty, setIsLoadingFaculty] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [toast, setToast] = useState<{ message: string; tone: "success" | "error" } | null>(
     null
   );
 
   const loadDepartments = async () => {
-    const response = await fetch("/api/portal/departments");
-    const data = await response.json();
-    setDepartments(data);
+    setIsLoadingDepartments(true);
+    setError(null);
+    try {
+      const response = await fetch("/api/portal/departments");
+      const data = await response.json().catch(() => []);
+      if (!response.ok) {
+        throw new Error("Unable to load departments.");
+      }
+      setDepartments(data);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Unable to load departments.");
+    } finally {
+      setIsLoadingDepartments(false);
+    }
   };
 
   const loadFaculty = async () => {
+    setIsLoadingFaculty(true);
+    setError(null);
     const params = new URLSearchParams();
     if (departmentCode) params.set("departmentCode", departmentCode);
     if (query) params.set("q", query);
 
-    const response = await fetch(`/api/portal/faculty?${params.toString()}`);
-    const data = await response.json();
-    setFaculty(data);
+    try {
+      const response = await fetch(`/api/portal/faculty?${params.toString()}`);
+      const data = await response.json().catch(() => []);
+      if (!response.ok) {
+        throw new Error(data.error || "Unable to load faculty.");
+      }
+      setFaculty(data);
+    } catch (err) {
+      setFaculty([]);
+      setError(err instanceof Error ? err.message : "Unable to load faculty.");
+    } finally {
+      setIsLoadingFaculty(false);
+    }
   };
 
   useEffect(() => {
@@ -52,10 +78,19 @@ export default function FacultyAdminPage() {
 
   const handleToggleBlock = async (profile: Faculty) => {
     setToast(null);
+    const nextBlockedState = !profile.user.isBlocked;
+    const confirmed = window.confirm(
+      nextBlockedState
+        ? `Block ${profile.user.name}? They will not be able to log in.`
+        : `Unblock ${profile.user.name}? They will regain access.`
+    );
+    if (!confirmed) {
+      return;
+    }
     const response = await fetch(`/api/portal/faculty/${profile.id}/block`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ isBlocked: !profile.user.isBlocked }),
+      body: JSON.stringify({ isBlocked: nextBlockedState }),
     });
 
     if (!response.ok) {
@@ -84,6 +119,8 @@ export default function FacultyAdminPage() {
         <p className="portal-page-subtitle">Manage faculty accounts and access.</p>
       </div>
 
+      {error ? <div className="portal-notice">{error}</div> : null}
+
       <div className="portal-card">
         <h3>Filters</h3>
         <div className="portal-form-columns" style={{ marginTop: "1rem" }}>
@@ -94,6 +131,7 @@ export default function FacultyAdminPage() {
               className="select"
               value={departmentCode}
               onChange={(event) => setDepartmentCode(event.target.value)}
+              disabled={isLoadingDepartments}
             >
               <option value="">All</option>
               {departments.map((dept) => (
@@ -136,32 +174,46 @@ export default function FacultyAdminPage() {
               </tr>
             </thead>
             <tbody>
-              {faculty.map((profile) => (
-                <tr key={profile.id}>
-                  <td>
-                    <Link className="portal-link" href={`/portal/admin/users/faculty/${profile.id}`}>
-                      {profile.user.name}
-                    </Link>
-                  </td>
-                  <td>{profile.user.email}</td>
-                  <td>{profile.department.code}</td>
-                  <td>{profile.sectionAccess.length}</td>
-                  <td>
-                    <span className="portal-pill">
-                      {profile.user.isBlocked ? "Blocked" : "Active"}
-                    </span>
-                  </td>
-                  <td>
-                    <button
-                      type="button"
-                      className="portal-button-outline"
-                      onClick={() => handleToggleBlock(profile)}
-                    >
-                      {profile.user.isBlocked ? "Unblock" : "Block"}
-                    </button>
+              {isLoadingFaculty ? (
+                <tr>
+                  <td colSpan={6} className="portal-card-note">
+                    Loading faculty...
                   </td>
                 </tr>
-              ))}
+              ) : faculty.length ? (
+                faculty.map((profile) => (
+                  <tr key={profile.id}>
+                    <td>
+                      <Link className="portal-link" href={`/portal/admin/users/faculty/${profile.id}`}>
+                        {profile.user.name}
+                      </Link>
+                    </td>
+                    <td>{profile.user.email}</td>
+                    <td>{profile.department.code}</td>
+                    <td>{profile.sectionAccess.length}</td>
+                    <td>
+                      <span className="portal-pill">
+                        {profile.user.isBlocked ? "Blocked" : "Active"}
+                      </span>
+                    </td>
+                    <td>
+                      <button
+                        type="button"
+                        className="portal-button-outline"
+                        onClick={() => handleToggleBlock(profile)}
+                      >
+                        {profile.user.isBlocked ? "Unblock" : "Block"}
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan={6}>
+                    <div className="portal-empty-state">No faculty found for the selected filters.</div>
+                  </td>
+                </tr>
+              )}
             </tbody>
           </table>
         </div>

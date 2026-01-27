@@ -77,6 +77,8 @@ const dateTimeFormatter = new Intl.DateTimeFormat("en-IN", {
   minute: "2-digit",
 });
 
+const bullet = "\u2022";
+
 export default function FacultyRemarksPage() {
   const [sections, setSections] = useState<SectionDto[]>([]);
   const [sectionsLoading, setSectionsLoading] = useState(true);
@@ -343,7 +345,7 @@ export default function FacultyRemarksPage() {
               {sectionsForYear.length ? null : <option value="">No sections</option>}
               {sectionsForYear.map((section) => (
                 <option key={section.id} value={section.id}>
-                  {section.department.code} • Year {section.year} • Section {section.name}
+                  {section.department.code} {bullet} Year {section.year} {bullet} Section {section.name}
                 </option>
               ))}
             </select>
@@ -436,4 +438,3 @@ export default function FacultyRemarksPage() {
     </div>
   );
 }
-

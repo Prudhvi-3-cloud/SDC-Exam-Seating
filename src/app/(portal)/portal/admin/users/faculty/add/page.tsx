@@ -125,6 +125,18 @@ export default function FacultyAddPage() {
       return;
     }
 
+    if (!bulkPreview.length) {
+      setBulkMessage("Upload a sheet first.");
+      return;
+    }
+
+    const confirmed = window.confirm(
+      `Submit bulk import for ${bulkPreview.length} faculty accounts?`
+    );
+    if (!confirmed) {
+      return;
+    }
+
     setIsSubmitting(true);
     const response = await fetch("/api/portal/faculty/bulk", {
       method: "POST",
