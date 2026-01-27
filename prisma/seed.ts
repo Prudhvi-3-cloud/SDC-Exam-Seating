@@ -1,4 +1,4 @@
-import { PrismaClient, PortalRole } from "@prisma/client";
+import { AttendanceStatus, DayOfWeek, PrismaClient, PortalRole } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
@@ -29,6 +29,11 @@ const sectionNames = ["A", "B", "C"] as const;
 const years = [1, 2, 3, 4];
 
 async function seedPortal() {
+  await prisma.attendanceRecord.deleteMany();
+  await prisma.marksRecord.deleteMany();
+  await prisma.feesRecord.deleteMany();
+  await prisma.remark.deleteMany();
+  await prisma.timetableEntry.deleteMany();
   await prisma.facultySectionAccess.deleteMany();
   await prisma.studentProfile.deleteMany();
   await prisma.facultyProfile.deleteMany();
@@ -58,6 +63,49 @@ async function seedPortal() {
   const sectionKey = (departmentId: string, year: number, name: string) =>
     `${departmentId}-${year}-${name}`;
   const sectionMap = new Map(sections.map((section) => [sectionKey(section.departmentId, section.year, section.name), section]));
+
+  const timetableDays = [
+    DayOfWeek.MONDAY,
+    DayOfWeek.TUESDAY,
+    DayOfWeek.WEDNESDAY,
+    DayOfWeek.THURSDAY,
+    DayOfWeek.FRIDAY,
+  ];
+  const timetableSlots = ["9:00-10:00", "10:00-11:00", "11:15-12:15", "1:00-2:00"];
+  const baseSubjects = [
+    "Mathematics",
+    "Data Structures",
+    "Digital Systems",
+    "Operating Systems",
+    "DBMS",
+    "Networks",
+    "AI",
+    "Software Engineering",
+  ];
+
+  const timetableEntries = portalDeptRows.flatMap((dept) =>
+    years.flatMap((year) =>
+      timetableDays.flatMap((day, dayIndex) =>
+        timetableSlots.map((slot, slotIndex) => {
+          const subjectIndex = (dayIndex * timetableSlots.length + slotIndex + year) % baseSubjects.length;
+          const subject = `${baseSubjects[subjectIndex]} (${dept.code}-${year})`;
+          return {
+            year,
+            departmentId: dept.id,
+            dayOfWeek: day,
+            slot,
+            subject,
+            facultyName: `Prof. ${dept.code} ${year}${slotIndex + 1}`,
+            room: `${dept.code}-${year}0${slotIndex + 1}`,
+          };
+        })
+      )
+    )
+  );
+
+  if (timetableEntries.length) {
+    await prisma.timetableEntry.createMany({ data: timetableEntries });
+  }
 
   const adminUsers = [
     { email: "principal.admin@srit.ac.in", password: "admin@123", name: "Dr. Rao" },
@@ -180,6 +228,8 @@ async function seedPortal() {
         userId: user.id,
         rollNo: meta.rollNo,
         year: meta.year,
+        phone: `9${String((meta.year * 100000000) + Number(meta.rollNo.slice(-2))).padStart(9, "0")}`,
+        address: `${meta.departmentCode} Block, Year ${meta.year}, Section ${meta.sectionName}`,
         departmentId: dept.id,
         sectionId: section.id,
       };
@@ -194,6 +244,90 @@ async function seedPortal() {
 
   if (studentProfiles.length) {
     await prisma.studentProfile.createMany({ data: studentProfiles });
+  }
+
+  const seededStudentProfiles = await prisma.studentProfile.findMany({
+    include: { user: true, department: true, section: true },
+    orderBy: [{ year: "asc" }, { rollNo: "asc" }],
+    take: portalDeptRows.length * years.length,
+  });
+
+  const attendanceSubjects = [
+    "Mathematics",
+    "Programming",
+    "Data Structures",
+    "Electronics",
+    "Mechanics",
+  ];
+
+  const today = new Date();
+  const attendanceRows = seededStudentProfiles.flatMap((profile, profileIndex) =>
+    Array.from({ length: 6 }).map((_, offset) => {
+      const date = new Date(today);
+      date.setDate(today.getDate() - (offset + profileIndex));
+      const subject = attendanceSubjects[(offset + profile.year) % attendanceSubjects.length];
+      const status = (offset + profileIndex) % 5 === 0 ? AttendanceStatus.ABSENT : AttendanceStatus.PRESENT;
+      return {
+        studentId: profile.id,
+        date,
+        subject: `${subject} (${profile.department.code})`,
+        status,
+      };
+    })
+  );
+
+  if (attendanceRows.length) {
+    await prisma.attendanceRecord.createMany({ data: attendanceRows });
+  }
+
+  const marksRows = seededStudentProfiles.flatMap((profile) => {
+    const semesters = [Math.max(1, profile.year * 2 - 1), Math.max(1, profile.year * 2)];
+    return semesters.flatMap((semester, semIndex) =>
+      ["Subject 1", "Subject 2", "Subject 3", "Subject 4"].map((subject, subjectIndex) => ({
+        studentId: profile.id,
+        semester,
+        subject: `${subject} (${profile.department.code}-${semester})`,
+        marks: 55 + ((semIndex + subjectIndex + profile.year) % 40),
+      }))
+    );
+  });
+
+  if (marksRows.length) {
+    await prisma.marksRecord.createMany({ data: marksRows });
+  }
+
+  const feesRows = seededStudentProfiles.map((profile, index) => {
+    const totalAmount = 60000 + profile.year * 5000;
+    const paidAmount = totalAmount - ((index % 3) * 5000 + 5000);
+    const dueAmount = Math.max(0, totalAmount - paidAmount);
+    return {
+      studentId: profile.id,
+      totalAmount,
+      paidAmount,
+      dueAmount,
+      lastUpdated: today,
+    };
+  });
+
+  if (feesRows.length) {
+    await prisma.feesRecord.createMany({ data: feesRows });
+  }
+
+  const remarkRows = seededStudentProfiles.flatMap((profile, index) => {
+    const baseRemarks = [
+      "Keep up the consistent attendance.",
+      "Shows strong performance in lab sessions.",
+    ];
+    return baseRemarks.slice(0, (index % 2) + 1).map((text, remarkIndex) => ({
+      studentId: profile.id,
+      text: `${text} (${profile.department.code}-${profile.section.name})`,
+      byFacultyName: `Prof. ${profile.department.code} Mentor ${remarkIndex + 1}`,
+      createdAt: new Date(today.getTime() - (index + remarkIndex) * 86_400_000),
+    }));
+  });
+
+  if (remarkRows.length) {
+    await prisma.remark.createMany({ data: remarkRows });
   }
 }
 

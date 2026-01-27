@@ -50,7 +50,7 @@ export default function RoleLogin({ role }: { role: Role }) {
         return;
       }
 
-      setSession({ email: data.email, role, name: data.name });
+      setSession({ userId: data.userId, email: data.email, role, name: data.name });
       router.replace(`/portal/${role}`);
     } finally {
       setIsSubmitting(false);

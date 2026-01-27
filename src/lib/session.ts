@@ -1,6 +1,7 @@
 export type Role = "admin" | "faculty" | "student";
 
 export type Session = {
+  userId: string;
   email: string;
   role: Role;
   name: string;
@@ -20,7 +21,7 @@ export function getSession(): Session | null {
     }
 
     const parsed = JSON.parse(raw) as Session;
-    if (!parsed?.email || !parsed?.role || !parsed?.name) {
+    if (!parsed?.userId || !parsed?.email || !parsed?.role || !parsed?.name) {
       return null;
     }
 

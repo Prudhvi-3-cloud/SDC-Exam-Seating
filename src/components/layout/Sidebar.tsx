@@ -29,7 +29,17 @@ export default function Sidebar({
           { label: "Students", href: "/portal/admin/users/students" },
           { label: "Faculty", href: "/portal/admin/users/faculty" },
         ]
-      : [{ label: "Dashboard", href: `/portal/${role}` }];
+      : role === "student"
+        ? [
+            { label: "Dashboard", href: "/portal/student" },
+            { label: "Profile", href: "/portal/student/profile" },
+            { label: "Attendance", href: "/portal/student/attendance" },
+            { label: "Marks", href: "/portal/student/marks" },
+            { label: "Fees", href: "/portal/student/fees" },
+            { label: "Timetable", href: "/portal/student/timetable" },
+            { label: "Remarks", href: "/portal/student/remarks" },
+          ]
+        : [{ label: "Dashboard", href: `/portal/${role}` }];
   const containerClass =
     variant === "mobile" ? "portal-sidebar portal-sidebar-mobile" : "portal-sidebar";
 

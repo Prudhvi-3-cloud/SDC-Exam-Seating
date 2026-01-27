@@ -20,6 +20,20 @@ enum PortalRole {
   STUDENT
 }
 
+enum AttendanceStatus {
+  PRESENT
+  ABSENT
+}
+
+enum DayOfWeek {
+  MONDAY
+  TUESDAY
+  WEDNESDAY
+  THURSDAY
+  FRIDAY
+  SATURDAY
+}
+
 model Student {
   id        String   @id @default(cuid())
   rollNo    String   @unique
@@ -137,6 +151,7 @@ model Department {
   sections        Section[]
   studentProfiles StudentProfile[]
   facultyProfiles FacultyProfile[]
+  timetableEntries TimetableEntry[]
 }
 
 model Section {
@@ -173,6 +188,8 @@ model StudentProfile {
   userId       String   @unique
   rollNo       String   @unique
   year         Int
+  phone        String?
+  address      String?
   departmentId String
   sectionId    String
   createdAt    DateTime @default(now())
@@ -180,6 +197,10 @@ model StudentProfile {
   user       PortalUser @relation(fields: [userId], references: [id], onDelete: Cascade)
   department Department @relation(fields: [departmentId], references: [id])
   section    Section    @relation(fields: [sectionId], references: [id])
+  attendanceRecords AttendanceRecord[]
+  marksRecords      MarksRecord[]
+  feesRecord        FeesRecord?
+  remarks           Remark[]
 
   @@index([departmentId, year, sectionId])
   @@index([rollNo])
@@ -223,4 +244,68 @@ model SessionInvigilator {
   @@index([sessionId])
   @@index([roomId])
   @@index([facultyProfileId])
+}
+
+model AttendanceRecord {
+  id        String           @id @default(cuid())
+  studentId String
+  date      DateTime
+  subject   String
+  status    AttendanceStatus
+  createdAt DateTime         @default(now())
+
+  student StudentProfile @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@index([studentId, date])
+}
+
+model MarksRecord {
+  id        String   @id @default(cuid())
+  studentId String
+  semester  Int
+  subject   String
+  marks     Int
+  createdAt DateTime @default(now())
+
+  student StudentProfile @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@index([studentId, semester])
+}
+
+model FeesRecord {
+  id          String   @id @default(cuid())
+  studentId   String   @unique
+  totalAmount Int
+  paidAmount  Int
+  dueAmount   Int
+  lastUpdated DateTime @default(now())
+
+  student StudentProfile @relation(fields: [studentId], references: [id], onDelete: Cascade)
+}
+
+model Remark {
+  id            String   @id @default(cuid())
+  studentId     String
+  text          String
+  createdAt     DateTime @default(now())
+  byFacultyName String?
+
+  student StudentProfile @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@index([studentId, createdAt])
+}
+
+model TimetableEntry {
+  id           String   @id @default(cuid())
+  year         Int
+  departmentId String
+  dayOfWeek    DayOfWeek
+  slot         String
+  subject      String
+  facultyName  String
+  room         String
+
+  department Department @relation(fields: [departmentId], references: [id], onDelete: Cascade)
+
+  @@index([year, departmentId])
 }

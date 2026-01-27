@@ -65,7 +65,7 @@ export function LoginPage({
         return;
       }
 
-      setSession({ email: data.email, role: 'student', name: data.name });
+      setSession({ userId: data.userId, email: data.email, role: 'student', name: data.name });
       router.replace('/portal/student');
     } finally {
       setStudentSubmitting(false);
@@ -96,7 +96,7 @@ export function LoginPage({
         return;
       }
 
-      setSession({ email: data.email, role: 'faculty', name: data.name });
+      setSession({ userId: data.userId, email: data.email, role: 'faculty', name: data.name });
       router.replace('/portal/faculty');
     } finally {
       setFacultySubmitting(false);
@@ -127,7 +127,7 @@ export function LoginPage({
         return;
       }
 
-      setSession({ email: data.email, role: 'admin', name: data.name });
+      setSession({ userId: data.userId, email: data.email, role: 'admin', name: data.name });
       router.replace('/portal/admin');
     } finally {
       setAdminSubmitting(false);

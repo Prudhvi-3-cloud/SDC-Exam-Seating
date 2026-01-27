@@ -28,9 +28,15 @@ export default function Topbar({
           type="button"
           className="portal-hamburger"
           aria-label="Open navigation"
+          title="Menu"
           onClick={onMenuClick}
         >
-          ?
+          <span className="portal-hamburger-icon" aria-hidden="true">
+            <span />
+            <span />
+            <span />
+          </span>
+          <span className="portal-hamburger-text">Menu</span>
         </button>
         <div>
           <div className="portal-topbar-title">{roleLabels[role]} Portal</div>
