@@ -39,7 +39,12 @@ export default function Sidebar({
             { label: "Timetable", href: "/portal/student/timetable" },
             { label: "Remarks", href: "/portal/student/remarks" },
           ]
-        : [{ label: "Dashboard", href: `/portal/${role}` }];
+        : [
+            { label: "Dashboard", href: "/portal/faculty" },
+            { label: "Profile", href: "/portal/faculty/profile" },
+            { label: "Update Attendance", href: "/portal/faculty/attendance" },
+            { label: "Update Remarks", href: "/portal/faculty/remarks" },
+          ];
   const containerClass =
     variant === "mobile" ? "portal-sidebar portal-sidebar-mobile" : "portal-sidebar";
 

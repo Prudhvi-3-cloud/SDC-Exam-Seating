@@ -562,6 +562,114 @@ h4 {
   font-weight: 600;
 }
 
+.faculty-attendance-toggle {
+  border-radius: 999px;
+  border: 1px solid transparent;
+  padding: 0.3rem 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+}
+
+.faculty-attendance-toggle:hover {
+  transform: translateY(-1px);
+}
+
+.faculty-attendance-present {
+  background: #e9f7ef;
+  color: #1d7a46;
+  border-color: #bfe7cc;
+}
+
+.faculty-attendance-absent {
+  background: #fff1f1;
+  color: #b42318;
+  border-color: #f5c2c0;
+}
+
+.faculty-student-cards {
+  display: none;
+  gap: 0.75rem;
+}
+
+.faculty-student-card {
+  border: 1px solid var(--srit-border);
+  border-radius: 12px;
+  padding: 0.8rem 0.9rem;
+  background: #fffaf4;
+  box-shadow: var(--srit-shadow);
+}
+
+.faculty-student-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.faculty-student-name {
+  font-weight: 700;
+}
+
+.faculty-remarks-layout {
+  grid-template-columns: minmax(240px, 320px) minmax(0, 1fr);
+  align-items: start;
+}
+
+.faculty-student-list {
+  display: grid;
+  gap: 0.5rem;
+  max-height: 420px;
+  overflow: auto;
+  padding-right: 0.25rem;
+}
+
+.faculty-student-list-item {
+  text-align: left;
+  border: 1px solid var(--srit-border);
+  border-radius: 10px;
+  background: #fff;
+  padding: 0.65rem 0.75rem;
+  cursor: pointer;
+  display: grid;
+  gap: 0.2rem;
+  transition: border-color 0.15s ease, background 0.15s ease, transform 0.15s ease;
+}
+
+.faculty-student-list-item:hover {
+  border-color: var(--srit-primary);
+  background: #fff5ea;
+  transform: translateY(-1px);
+}
+
+.faculty-student-list-item.is-active {
+  border-color: var(--srit-primary);
+  background: #fff5ea;
+}
+
+.faculty-remarks-log {
+  display: grid;
+  gap: 0.6rem;
+  max-height: 320px;
+  overflow: auto;
+  padding-right: 0.25rem;
+}
+
+.faculty-remark-item {
+  border: 1px solid var(--srit-border);
+  border-radius: 10px;
+  padding: 0.65rem 0.75rem;
+  background: #fffaf4;
+  display: grid;
+  gap: 0.25rem;
+}
+
+.faculty-remark-meta {
+  font-size: 0.82rem;
+  color: var(--srit-muted);
+  font-weight: 600;
+}
+
 .portal-link {
   color: var(--srit-primary);
   font-weight: 600;
@@ -1059,6 +1167,24 @@ h4 {
   .portal-topbar-meta > span {
     display: none;
   }
+
+  .faculty-table-desktop {
+    display: none;
+  }
+
+  .faculty-student-cards {
+    display: grid;
+  }
+
+  .faculty-student-list {
+    max-height: none;
+    overflow: visible;
+  }
+
+  .faculty-remarks-log {
+    max-height: none;
+    overflow: visible;
+  }
 }
 
 @media (max-width: 768px) {
@@ -1090,6 +1216,10 @@ h4 {
 
   .timetable-day-cards {
     display: grid;
+  }
+
+  .faculty-remarks-layout {
+    grid-template-columns: 1fr;
   }
 }
 

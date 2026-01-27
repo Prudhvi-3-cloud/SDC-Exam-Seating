@@ -31,3 +31,7 @@ export function getPortalSessionFromRequest(request: Request): Session | null {
 export function isStudentSession(session: Session | null): session is Session & { role: "student" } {
   return Boolean(session && session.role === "student");
 }
+
+export function isFacultySession(session: Session | null): session is Session & { role: "faculty" } {
+  return Boolean(session && session.role === "faculty");
+}
