@@ -1,30 +1,65 @@
+"use client";
+
+import { useEffect, useState } from 'react';
 import { Award, Users, Building2, TrendingUp, GraduationCap, BookOpen, Calendar } from 'lucide-react';
-import { ImageWithFallback } from '@/app/components/figma/ImageWithFallback';
 
 export function HomePage() {
+  const heroImages = [
+    '/srit-1.avif',
+    '/srit-2.jpg',
+    '/srit-3.jpeg',
+    '/srit-4.jpg',
+  ];
+  const [activeImageIndex, setActiveImageIndex] = useState(0);
+
+  useEffect(() => {
+    const interval = window.setInterval(() => {
+      setActiveImageIndex((prev) => (prev + 1) % heroImages.length);
+    }, 4500);
+
+    return () => window.clearInterval(interval);
+  }, [heroImages.length]);
+
   return (
     <div className="w-full">
       {/* Hero Section */}
       <section className="relative h-[600px] flex items-center justify-center overflow-hidden">
         <div className="absolute inset-0">
-          <ImageWithFallback
-            src="https://images.unsplash.com/flagged/photo-1580408453889-ed5e1b51924a?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxjb2xsZWdlJTIwY2FtcHVzJTIwYnVpbGRpbmd8ZW58MXx8fHwxNzY5MDQ4NTQ2fDA&ixlib=rb-4.1.0&q=80&w=1080"
-            alt="SRIT Campus"
-            className="w-full h-full object-cover"
-          />
+          {heroImages.map((image, index) => {
+            const isActive = index === activeImageIndex;
+            return (
+              <img
+                key={image}
+                src={image}
+                alt="SRIT Campus"
+                className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-1000 ease-in-out ${
+                  isActive ? 'opacity-100' : 'opacity-0'
+                }`}
+                style={{
+                  transform: isActive ? 'scale(1.06)' : 'scale(1)',
+                  transitionProperty: 'opacity, transform',
+                  transitionDuration: isActive ? '1000ms, 4500ms' : '1000ms, 1000ms',
+                  transitionTimingFunction: 'ease-in-out, ease-out',
+                }}
+              />
+            );
+          })}
           <div className="absolute inset-0 bg-black/50"></div>
         </div>
         <div className="relative z-10 text-center text-white max-w-4xl px-4">
           <h1 className="text-5xl mb-4">Srinivasa Ramanujan Institute of Technology</h1>
           <p className="text-2xl mb-8">Empowering Knowledge, Building Futures</p>
-          <button className="bg-primary hover:bg-primary/90 text-primary-foreground px-8 py-3 rounded-lg transition-colors">
+          <a
+            href="#admissions"
+            className="inline-flex items-center justify-center bg-primary hover:bg-primary/90 text-primary-foreground px-8 py-3 rounded-lg transition-colors"
+          >
             Admissions 2025
-          </button>
+          </a>
         </div>
       </section>
 
       {/* Highlights Section */}
-      <section className="py-16 bg-accent">
+      <section className="py-16 bg-background">
         <div className="max-w-7xl mx-auto px-4">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div className="bg-background rounded-lg p-6 shadow-sm">

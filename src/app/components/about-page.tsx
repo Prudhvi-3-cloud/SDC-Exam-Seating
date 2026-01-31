@@ -15,31 +15,44 @@ export function AboutPage() {
       <section className="py-16">
         <div className="max-w-7xl mx-auto px-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <div className="bg-accent rounded-lg p-8">
+            <div className="bg-background border border-border rounded-lg p-8 shadow-sm">
               <div className="flex items-center gap-3 mb-4">
-                <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center">
+                <div className="w-12 h-12 bg-background border border-border rounded-lg flex items-center justify-center">
                   <Eye className="w-6 h-6 text-primary" />
                 </div>
                 <h2 className="text-2xl">Our Vision</h2>
               </div>
               <p className="text-muted-foreground leading-relaxed">
-                To be a globally recognized institution of higher learning, empowering students with knowledge, 
-                skills, and values to excel in their chosen fields and contribute meaningfully to society. 
-                We aspire to foster innovation, research, and entrepreneurship that addresses real-world challenges.
+                To become a premier Educational Institution in India offering the best teaching and learning environment
+                for our students that will enable them to become complete individuals with professional competency, human
+                touch, ethical values, service motto, and a strong sense of responsibility towards environment and society
+                at large.
               </p>
             </div>
 
-            <div className="bg-accent rounded-lg p-8">
+            <div className="bg-background border border-border rounded-lg p-8 shadow-sm">
               <div className="flex items-center gap-3 mb-4">
-                <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center">
+                <div className="w-12 h-12 bg-background border border-border rounded-lg flex items-center justify-center">
                   <Target className="w-6 h-6 text-primary" />
                 </div>
                 <h2 className="text-2xl">Our Mission</h2>
               </div>
               <p className="text-muted-foreground leading-relaxed">
-                To provide quality technical education through innovative teaching methodologies, state-of-the-art 
-                infrastructure, and industry collaboration. We are committed to nurturing ethical, competent, and 
-                socially responsible professionals who can lead in an ever-evolving technological landscape.
+                Continually enhance the quality of physical infrastructure and human resources to evolve in to a center of
+                excellence in engineering education.
+                <br />
+                <br />
+                Provide comprehensive learning experiences that are conducive for the students to acquire professional
+                competences, ethical values, life-long learning abilities and understanding of the technology,
+                environment and society.
+                <br />
+                <br />
+                Strengthen industry institute interactions to enable the students work on realistic problems and acquire
+                the ability to face the ever changing requirements of the industry.
+                <br />
+                <br />
+                Continually enhance the quality of the relationship between students and faculty which is a key to the
+                development of an exciting and rewarding learning environment in the college.
               </p>
             </div>
           </div>
@@ -94,8 +107,8 @@ export function AboutPage() {
           <h2 className="text-3xl text-center mb-12">Infrastructure Overview</h2>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <div className="bg-accent rounded-lg p-6">
-              <div className="w-14 h-14 bg-primary/10 rounded-lg flex items-center justify-center mb-4">
+            <div className="bg-background border border-border rounded-lg p-6 shadow-sm">
+              <div className="w-14 h-14 bg-background border border-border rounded-lg flex items-center justify-center mb-4">
                 <Building2 className="w-7 h-7 text-primary" />
               </div>
               <h4 className="mb-2">Modern Classrooms</h4>
@@ -104,8 +117,8 @@ export function AboutPage() {
               </p>
             </div>
 
-            <div className="bg-accent rounded-lg p-6">
-              <div className="w-14 h-14 bg-primary/10 rounded-lg flex items-center justify-center mb-4">
+            <div className="bg-background border border-border rounded-lg p-6 shadow-sm">
+              <div className="w-14 h-14 bg-background border border-border rounded-lg flex items-center justify-center mb-4">
                 <Building2 className="w-7 h-7 text-primary" />
               </div>
               <h4 className="mb-2">Advanced Laboratories</h4>
@@ -114,8 +127,8 @@ export function AboutPage() {
               </p>
             </div>
 
-            <div className="bg-accent rounded-lg p-6">
-              <div className="w-14 h-14 bg-primary/10 rounded-lg flex items-center justify-center mb-4">
+            <div className="bg-background border border-border rounded-lg p-6 shadow-sm">
+              <div className="w-14 h-14 bg-background border border-border rounded-lg flex items-center justify-center mb-4">
                 <Building2 className="w-7 h-7 text-primary" />
               </div>
               <h4 className="mb-2">Central Library</h4>
@@ -124,8 +137,8 @@ export function AboutPage() {
               </p>
             </div>
 
-            <div className="bg-accent rounded-lg p-6">
-              <div className="w-14 h-14 bg-primary/10 rounded-lg flex items-center justify-center mb-4">
+            <div className="bg-background border border-border rounded-lg p-6 shadow-sm">
+              <div className="w-14 h-14 bg-background border border-border rounded-lg flex items-center justify-center mb-4">
                 <Building2 className="w-7 h-7 text-primary" />
               </div>
               <h4 className="mb-2">Sports Facilities</h4>
@@ -134,8 +147,8 @@ export function AboutPage() {
               </p>
             </div>
 
-            <div className="bg-accent rounded-lg p-6">
-              <div className="w-14 h-14 bg-primary/10 rounded-lg flex items-center justify-center mb-4">
+            <div className="bg-background border border-border rounded-lg p-6 shadow-sm">
+              <div className="w-14 h-14 bg-background border border-border rounded-lg flex items-center justify-center mb-4">
                 <Building2 className="w-7 h-7 text-primary" />
               </div>
               <h4 className="mb-2">Hostels</h4>
@@ -144,8 +157,8 @@ export function AboutPage() {
               </p>
             </div>
 
-            <div className="bg-accent rounded-lg p-6">
-              <div className="w-14 h-14 bg-primary/10 rounded-lg flex items-center justify-center mb-4">
+            <div className="bg-background border border-border rounded-lg p-6 shadow-sm">
+              <div className="w-14 h-14 bg-background border border-border rounded-lg flex items-center justify-center mb-4">
                 <Building2 className="w-7 h-7 text-primary" />
               </div>
               <h4 className="mb-2">Cafeteria</h4>
@@ -154,8 +167,8 @@ export function AboutPage() {
               </p>
             </div>
 
-            <div className="bg-accent rounded-lg p-6">
-              <div className="w-14 h-14 bg-primary/10 rounded-lg flex items-center justify-center mb-4">
+            <div className="bg-background border border-border rounded-lg p-6 shadow-sm">
+              <div className="w-14 h-14 bg-background border border-border rounded-lg flex items-center justify-center mb-4">
                 <Building2 className="w-7 h-7 text-primary" />
               </div>
               <h4 className="mb-2">Medical Facility</h4>
@@ -164,8 +177,8 @@ export function AboutPage() {
               </p>
             </div>
 
-            <div className="bg-accent rounded-lg p-6">
-              <div className="w-14 h-14 bg-primary/10 rounded-lg flex items-center justify-center mb-4">
+            <div className="bg-background border border-border rounded-lg p-6 shadow-sm">
+              <div className="w-14 h-14 bg-background border border-border rounded-lg flex items-center justify-center mb-4">
                 <Building2 className="w-7 h-7 text-primary" />
               </div>
               <h4 className="mb-2">Transport</h4>

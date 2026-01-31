@@ -1,14 +1,14 @@
 @import "../styles/index.css";
 
 :root {
-  --srit-orange: #e07b1b;
-  --srit-orange-dark: #c76512;
-  --srit-orange-light: #f6c286;
+  --srit-orange: #FF5421;
+  --srit-orange-dark: #E64A1A;
+  --srit-orange-light: #FFF1EA;
   --text: #1e1e1e;
   --bg: #f6f3ef;
   --border: #ead7c2;
   --card-bg: #ffffff;
-  --srit-primary: #ff5421;
+  --srit-primary: #FF5421;
   --srit-on-primary: #ffffff;
   --srit-bg: var(--bg);
   --srit-surface: var(--card-bg);
@@ -95,7 +95,7 @@ h4 {
   height: 64px;
   border-radius: 50%;
   border: 2px solid var(--srit-orange);
-  background: linear-gradient(135deg, #fff7ef, #ffe3c5);
+  background: linear-gradient(135deg, var(--srit-orange-light), var(--srit-orange-light));
   display: grid;
   place-items: center;
   font-weight: 700;
@@ -151,7 +151,7 @@ h4 {
 }
 
 .button-outline:hover {
-  background: #fff5ea;
+  background: var(--srit-orange-light);
 }
 
 .button-secondary {
@@ -175,7 +175,7 @@ h4 {
   background: var(--srit-orange-light);
   padding: 0.65rem 1rem;
   font-weight: 700;
-  color: #5f3605;
+  color: var(--srit-orange-dark);
   text-transform: uppercase;
   letter-spacing: 0.04em;
 }
@@ -219,9 +219,9 @@ h4 {
 }
 
 .toast-success {
-  background: #fff2e4;
-  border: 1px solid #f1c189;
-  color: #6d3500;
+  background: var(--srit-orange-light);
+  border: 1px solid var(--srit-orange);
+  color: var(--srit-orange-dark);
 }
 
 .toast-error {
@@ -265,9 +265,9 @@ h4 {
   padding: 0.2rem 0.6rem;
   border-radius: 999px;
   font-size: 0.75rem;
-  background: #fef2e4;
-  color: #7a3b00;
-  border: 1px solid #f7c99a;
+  background: var(--srit-orange-light);
+  color: var(--srit-orange-dark);
+  border: 1px solid var(--srit-orange);
 }
 
 .table {
@@ -284,7 +284,7 @@ h4 {
 }
 
 .table th {
-  background: #fff4e8;
+  background: var(--srit-orange-light);
   font-weight: 600;
 }
 
@@ -298,7 +298,7 @@ h4 {
 
 .notice {
   border-left: 4px solid var(--srit-orange);
-  background: #fff8f0;
+  background: var(--srit-orange-light);
   padding: 0.75rem 1rem;
   border-radius: 6px;
 }
@@ -323,7 +323,7 @@ h4 {
 
 .list-item:hover {
   border-color: var(--border);
-  background: #fffaf4;
+  background: var(--srit-orange-light);
 }
 
 .section-actions {
@@ -362,7 +362,7 @@ h4 {
 }
 
 .plan-grid th {
-  background: #fff4e8;
+  background: var(--srit-orange-light);
 }
 
 .plan-room-header {
@@ -447,13 +447,13 @@ h4 {
 .portal-nav a:focus-visible {
   border-color: var(--srit-primary);
   color: var(--srit-primary);
-  background: #fff5ea;
+  background: var(--srit-orange-light);
 }
 
 .portal-nav a.active {
   border-color: var(--srit-primary);
   color: var(--srit-primary);
-  background: #fff5ea;
+  background: var(--srit-orange-light);
 }
 
 .portal-main {
@@ -565,7 +565,7 @@ h4 {
 }
 
 .portal-table th {
-  background: #fff4e8;
+  background: var(--srit-orange-light);
   font-weight: 600;
 }
 
@@ -603,7 +603,7 @@ h4 {
   border: 1px solid var(--srit-border);
   border-radius: 12px;
   padding: 0.8rem 0.9rem;
-  background: #fffaf4;
+  background: var(--srit-orange-light);
   box-shadow: var(--srit-shadow);
 }
 
@@ -645,13 +645,13 @@ h4 {
 
 .faculty-student-list-item:hover {
   border-color: var(--srit-primary);
-  background: #fff5ea;
+  background: var(--srit-orange-light);
   transform: translateY(-1px);
 }
 
 .faculty-student-list-item.is-active {
   border-color: var(--srit-primary);
-  background: #fff5ea;
+  background: var(--srit-orange-light);
 }
 
 .faculty-remarks-log {
@@ -666,7 +666,7 @@ h4 {
   border: 1px solid var(--srit-border);
   border-radius: 10px;
   padding: 0.65rem 0.75rem;
-  background: #fffaf4;
+  background: var(--srit-orange-light);
   display: grid;
   gap: 0.25rem;
 }
@@ -695,7 +695,7 @@ h4 {
   padding: 0.2rem 0.6rem;
   font-size: 0.75rem;
   color: var(--srit-muted);
-  background: #fffaf4;
+  background: var(--srit-orange-light);
 }
 
 .portal-actions {
@@ -732,7 +732,7 @@ h4 {
 
 .portal-button-outline:hover,
 .portal-button-outline:focus-visible {
-  background: #fff5ea;
+  background: var(--srit-orange-light);
 }
 
 .portal-auth {
@@ -767,7 +767,7 @@ h4 {
 .portal-card-link:focus-visible .portal-card {
   transform: translateY(-2px);
   border-color: var(--srit-primary);
-  box-shadow: 0 16px 28px rgba(224, 123, 27, 0.18);
+  box-shadow: 0 16px 28px rgba(255, 84, 33, 0.18);
 }
 
 .student-summary-grid {
@@ -812,9 +812,9 @@ h4 {
 }
 
 .portal-status-due {
-  background: #fff4e8;
-  color: #a24a00;
-  border-color: #f3c69d;
+  background: var(--srit-orange-light);
+  color: var(--srit-orange-dark);
+  border-color: var(--srit-orange);
 }
 
 .portal-status-ok {
@@ -835,7 +835,7 @@ h4 {
   padding: 0.65rem 0.75rem;
   border: 1px solid var(--srit-border);
   border-radius: 10px;
-  background: #fffaf4;
+  background: var(--srit-orange-light);
 }
 
 .student-profile-label {
@@ -870,7 +870,7 @@ h4 {
 }
 
 .timetable-grid th {
-  background: #fff4e8;
+  background: var(--srit-orange-light);
   font-weight: 700;
 }
 
@@ -910,7 +910,7 @@ h4 {
   padding: 0.65rem 0.75rem;
   display: grid;
   gap: 0.2rem;
-  background: #fffaf4;
+  background: var(--srit-orange-light);
 }
 
 .timetable-slot-time {
@@ -922,7 +922,7 @@ h4 {
   border: 1px dashed var(--srit-border);
   border-radius: 12px;
   padding: 1.1rem 1.25rem;
-  background: #fffaf4;
+  background: var(--srit-orange-light);
   color: var(--srit-muted);
 }
 
@@ -953,7 +953,7 @@ h4 {
 
 .portal-loading-block,
 .portal-loading-line {
-  background: #f3d2b5;
+  background: var(--srit-orange-light);
   border-radius: 8px;
   height: 16px;
   animation: portal-pulse 1.2s ease-in-out infinite;
@@ -994,7 +994,7 @@ h4 {
   width: 42px;
   height: 42px;
   border-radius: 999px;
-  border: 3px solid #f3d2b5;
+  border: 3px solid var(--srit-orange-light);
   border-top-color: var(--srit-primary);
   animation: portal-spin 0.8s linear infinite;
   margin-bottom: 1rem;
@@ -1056,10 +1056,10 @@ h4 {
 
 .portal-notice {
   border-left: 4px solid var(--srit-primary);
-  background: #fff8f0;
+  background: var(--srit-orange-light);
   padding: 0.75rem 1rem;
   border-radius: 6px;
-  color: #6d3500;
+  color: var(--srit-orange-dark);
   font-size: 0.9rem;
 }
 
@@ -1256,3 +1256,6 @@ h4 {
     padding: 0;
   }
 }
+
+
+

@@ -7,10 +7,15 @@ import { HomePage } from '@/app/components/home-page';
 import { AboutPage } from '@/app/components/about-page';
 import { DepartmentsPage } from '@/app/components/departments-page';
 import { AdmissionsPage } from '@/app/components/admissions-page';
+import { AcademicsPage } from '@/app/components/academics-page';
+import { PlacementsPage } from '@/app/components/placements-page';
+import { CampusLifePage } from '@/app/components/campus-life-page';
 import { LoginPage } from '@/app/components/login-page';
 
 export default function App() {
-  const [currentPage, setCurrentPage] = useState<'home' | 'about' | 'departments' | 'admissions' | 'login'>('home');
+  const [currentPage, setCurrentPage] = useState<
+    'home' | 'about' | 'departments' | 'admissions' | 'academics' | 'placements' | 'campus' | 'login'
+  >('home');
 
   // Simple navigation handler
   const handleNavigate = (page: typeof currentPage) => {
@@ -29,7 +34,7 @@ export default function App() {
         if (href?.startsWith('#')) {
           e.preventDefault();
           const page = href.slice(1) as typeof currentPage;
-          if (['home', 'about', 'departments', 'admissions', 'login'].includes(page)) {
+          if (['home', 'about', 'departments', 'admissions', 'academics', 'placements', 'campus', 'login'].includes(page)) {
             handleNavigate(page);
           }
         }
@@ -53,6 +58,9 @@ export default function App() {
         {currentPage === 'about' && <AboutPage />}
         {currentPage === 'departments' && <DepartmentsPage />}
         {currentPage === 'admissions' && <AdmissionsPage />}
+        {currentPage === 'academics' && <AcademicsPage />}
+        {currentPage === 'placements' && <PlacementsPage />}
+        {currentPage === 'campus' && <CampusLifePage />}
       </main>
       <Footer />
     </div>

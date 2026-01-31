@@ -23,7 +23,7 @@ export default async function LoginPage({
           href="/"
           className="inline-flex items-center gap-2 rounded-full border border-border bg-background px-3 py-2 text-sm font-medium text-foreground shadow-sm hover:bg-accent"
         >
-          {"<- Back"}
+          {"Back"}
         </Link>
       </div>
       <LegacyLoginPage initialRole={role} singleRole />

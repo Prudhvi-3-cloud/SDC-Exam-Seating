@@ -20,36 +20,36 @@ export function Header() {
   return (
     <header className="w-full">
       {/* Top Utility Bar */}
-      <div className="bg-muted py-2">
+      <div className="bg-[color:var(--srit-orange)] py-2 text-white">
         <div className="max-w-7xl mx-auto px-4 flex flex-col gap-2 sm:flex-row sm:justify-between sm:items-center text-sm">
           <div className="flex flex-wrap items-center gap-4 sm:gap-6">
-            <div className="flex items-center gap-2 text-muted-foreground">
+            <div className="flex items-center gap-2 text-white/90">
               <Phone className="w-4 h-4" />
-              <span>+91 123 456 7890</span>
+              <span>91-951 561 1111</span>
             </div>
-            <div className="flex items-center gap-2 text-muted-foreground">
+            <div className="flex items-center gap-2 text-white/90">
               <Mail className="w-4 h-4" />
-              <span>info@srit.edu.in</span>
+              <span>hr@srit.ac.in</span>
             </div>
           </div>
           <div className="flex flex-wrap items-center gap-3 sm:gap-4">
             <a
               href="/login?role=student"
-              className="flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors"
+              className="flex items-center gap-2 text-white hover:text-white/90 transition-colors"
             >
               <User className="w-4 h-4" />
               <span>Student Login</span>
             </a>
             <a
               href="/login?role=faculty"
-              className="flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors"
+              className="flex items-center gap-2 text-white hover:text-white/90 transition-colors"
             >
               <LogIn className="w-4 h-4" />
               <span>Faculty Login</span>
             </a>
             <a
               href="/login?role=admin"
-              className="flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors"
+              className="flex items-center gap-2 text-white hover:text-white/90 transition-colors"
             >
               <Shield className="w-4 h-4" />
               <span>Admin Login</span>
@@ -85,7 +85,7 @@ export function Header() {
                 <a
                   key={link.href}
                   href={link.href}
-                  className="text-foreground hover:text-primary transition-colors"
+                  className="text-foreground transition-colors duration-200 ease-out hover:!text-[color:var(--srit-orange)] focus-visible:!text-[color:var(--srit-orange)]"
                 >
                   {link.label}
                 </a>
@@ -116,7 +116,7 @@ export function Header() {
                 <a
                   key={link.href}
                   href={link.href}
-                  className="rounded-md border px-3 py-2 text-foreground hover:text-primary hover:border-primary transition-colors"
+                  className="rounded-md border px-3 py-2 text-foreground hover:!text-[color:var(--srit-orange)] hover:!border-[color:var(--srit-orange)] transition-colors duration-200 ease-out"
                   onClick={() => setIsMobileNavOpen(false)}
                 >
                   {link.label}

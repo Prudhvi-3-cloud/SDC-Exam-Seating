@@ -21,11 +21,11 @@ export function AdmissionsPage() {
               {/* Step 1 */}
               <div className="flex gap-6 items-start">
                 <div className="flex-shrink-0">
-                  <div className="w-12 h-12 bg-primary rounded-full flex items-center justify-center text-primary-foreground">
+                  <div className="w-12 h-12 bg-background border border-border rounded-full flex items-center justify-center text-primary font-semibold">
                     1
                   </div>
                 </div>
-                <div className="flex-1 bg-accent rounded-lg p-6">
+                <div className="flex-1 bg-background border border-border rounded-lg p-6 shadow-sm">
                   <div className="flex items-center gap-3 mb-3">
                     <FileText className="w-6 h-6 text-primary" />
                     <h3 className="text-xl">Online Application</h3>
@@ -40,11 +40,11 @@ export function AdmissionsPage() {
               {/* Step 2 */}
               <div className="flex gap-6 items-start">
                 <div className="flex-shrink-0">
-                  <div className="w-12 h-12 bg-primary rounded-full flex items-center justify-center text-primary-foreground">
+                  <div className="w-12 h-12 bg-background border border-border rounded-full flex items-center justify-center text-primary font-semibold">
                     2
                   </div>
                 </div>
-                <div className="flex-1 bg-accent rounded-lg p-6">
+                <div className="flex-1 bg-background border border-border rounded-lg p-6 shadow-sm">
                   <div className="flex items-center gap-3 mb-3">
                     <FileCheck className="w-6 h-6 text-primary" />
                     <h3 className="text-xl">Document Verification</h3>
@@ -59,11 +59,11 @@ export function AdmissionsPage() {
               {/* Step 3 */}
               <div className="flex gap-6 items-start">
                 <div className="flex-shrink-0">
-                  <div className="w-12 h-12 bg-primary rounded-full flex items-center justify-center text-primary-foreground">
+                  <div className="w-12 h-12 bg-background border border-border rounded-full flex items-center justify-center text-primary font-semibold">
                     3
                   </div>
                 </div>
-                <div className="flex-1 bg-accent rounded-lg p-6">
+                <div className="flex-1 bg-background border border-border rounded-lg p-6 shadow-sm">
                   <div className="flex items-center gap-3 mb-3">
                     <Calendar className="w-6 h-6 text-primary" />
                     <h3 className="text-xl">Counseling & Seat Allocation</h3>
@@ -78,11 +78,11 @@ export function AdmissionsPage() {
               {/* Step 4 */}
               <div className="flex gap-6 items-start">
                 <div className="flex-shrink-0">
-                  <div className="w-12 h-12 bg-primary rounded-full flex items-center justify-center text-primary-foreground">
+                  <div className="w-12 h-12 bg-background border border-border rounded-full flex items-center justify-center text-primary font-semibold">
                     4
                   </div>
                 </div>
-                <div className="flex-1 bg-accent rounded-lg p-6">
+                <div className="flex-1 bg-background border border-border rounded-lg p-6 shadow-sm">
                   <div className="flex items-center gap-3 mb-3">
                     <CheckCircle className="w-6 h-6 text-primary" />
                     <h3 className="text-xl">Confirmation & Fee Payment</h3>
@@ -105,7 +105,7 @@ export function AdmissionsPage() {
 
           <div className="max-w-3xl mx-auto bg-background rounded-lg overflow-hidden shadow-sm">
             <div className="divide-y divide-border">
-              <div className="flex items-center justify-between p-6 hover:bg-accent/50 transition-colors">
+              <div className="flex items-center justify-between p-6 hover:bg-muted/60 transition-colors">
                 <div>
                   <h4 className="mb-1">Application Start Date</h4>
                   <p className="text-sm text-muted-foreground">Begin your application process</p>
@@ -113,7 +113,7 @@ export function AdmissionsPage() {
                 <div className="text-primary">March 1, 2025</div>
               </div>
 
-              <div className="flex items-center justify-between p-6 hover:bg-accent/50 transition-colors">
+              <div className="flex items-center justify-between p-6 hover:bg-muted/60 transition-colors">
                 <div>
                   <h4 className="mb-1">Application End Date</h4>
                   <p className="text-sm text-muted-foreground">Last date for submission</p>
@@ -121,7 +121,7 @@ export function AdmissionsPage() {
                 <div className="text-primary">May 31, 2025</div>
               </div>
 
-              <div className="flex items-center justify-between p-6 hover:bg-accent/50 transition-colors">
+              <div className="flex items-center justify-between p-6 hover:bg-muted/60 transition-colors">
                 <div>
                   <h4 className="mb-1">Entrance Exam</h4>
                   <p className="text-sm text-muted-foreground">State/National level entrance exam</p>
@@ -129,7 +129,7 @@ export function AdmissionsPage() {
                 <div className="text-primary">April 15-30, 2025</div>
               </div>
 
-              <div className="flex items-center justify-between p-6 hover:bg-accent/50 transition-colors">
+              <div className="flex items-center justify-between p-6 hover:bg-muted/60 transition-colors">
                 <div>
                   <h4 className="mb-1">Counseling Dates</h4>
                   <p className="text-sm text-muted-foreground">Attend counseling session</p>
@@ -137,7 +137,7 @@ export function AdmissionsPage() {
                 <div className="text-primary">June 10-20, 2025</div>
               </div>
 
-              <div className="flex items-center justify-between p-6 hover:bg-accent/50 transition-colors">
+              <div className="flex items-center justify-between p-6 hover:bg-muted/60 transition-colors">
                 <div>
                   <h4 className="mb-1">Classes Commence</h4>
                   <p className="text-sm text-muted-foreground">Academic year begins</p>
@@ -152,17 +152,17 @@ export function AdmissionsPage() {
       {/* Call to Action */}
       <section className="py-16">
         <div className="max-w-7xl mx-auto px-4">
-          <div className="bg-primary rounded-lg p-12 text-center text-primary-foreground">
+          <div className="bg-background border border-border rounded-lg p-12 text-center shadow-sm">
             <h2 className="text-3xl mb-4">Ready to Apply?</h2>
-            <p className="mb-8 text-primary-foreground/90 max-w-2xl mx-auto">
+            <p className="mb-8 text-muted-foreground max-w-2xl mx-auto">
               Take the first step towards your engineering career. Apply now and join SRIT's community of 
               excellence.
             </p>
             <div className="flex items-center justify-center gap-4">
-              <button className="bg-background text-foreground hover:bg-background/90 px-8 py-3 rounded-lg transition-colors flex items-center gap-2">
+              <button className="bg-primary text-primary-foreground hover:bg-primary/90 px-8 py-3 rounded-lg transition-colors flex items-center gap-2">
                 Apply Now
               </button>
-              <button className="border-2 border-primary-foreground text-primary-foreground hover:bg-primary-foreground hover:text-primary px-8 py-3 rounded-lg transition-colors flex items-center gap-2">
+              <button className="border-2 border-primary text-primary hover:bg-primary/10 px-8 py-3 rounded-lg transition-colors flex items-center gap-2">
                 <Download className="w-5 h-5" />
                 Download Brochure
               </button>

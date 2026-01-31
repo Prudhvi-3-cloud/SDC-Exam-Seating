@@ -132,7 +132,7 @@ export default function StudentFeesPage() {
                 height: "12px",
                 borderRadius: "999px",
                 border: "1px solid var(--srit-border)",
-                background: "#fff5ea",
+                background: "var(--srit-orange-light)",
                 overflow: "hidden",
               }}
             >
@@ -154,3 +154,4 @@ export default function StudentFeesPage() {
     </div>
   );
 }
+

@@ -64,7 +64,7 @@ export function DepartmentsPage() {
                 key={index}
                 className="bg-background border border-border rounded-lg p-6 hover:shadow-lg hover:border-primary/50 transition-all group cursor-pointer"
               >
-                <div className="w-16 h-16 bg-primary/10 rounded-lg flex items-center justify-center mb-4 group-hover:bg-primary/20 transition-colors">
+                <div className="w-16 h-16 bg-background border border-border rounded-lg flex items-center justify-center mb-4 group-hover:border-primary/40 transition-colors">
                   <div className="text-primary">{dept.icon}</div>
                 </div>
                 <h3 className="text-xl mb-3 group-hover:text-primary transition-colors">

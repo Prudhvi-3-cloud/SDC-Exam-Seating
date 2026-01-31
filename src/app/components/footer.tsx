@@ -54,26 +54,26 @@ export function Footer() {
               </div>
               <div className="flex items-center gap-2 text-muted-foreground">
                 <Phone className="w-4 h-4" />
-                <span>+91 123 456 7890</span>
+                <span>91-951 561 1111</span>
               </div>
               <div className="flex items-center gap-2 text-muted-foreground">
                 <Mail className="w-4 h-4" />
-                <span>info@srit.edu.in</span>
+                <span>hr@srit.ac.in</span>
               </div>
             </div>
 
             {/* Social Media */}
             <div className="flex items-center gap-3 mt-4">
-              <a href="#" className="w-8 h-8 rounded-full bg-accent flex items-center justify-center hover:bg-primary hover:text-primary-foreground transition-colors">
+              <a href="#" className="w-8 h-8 rounded-full bg-background border border-border flex items-center justify-center text-primary hover:bg-primary hover:text-primary-foreground transition-colors">
                 <Facebook className="w-4 h-4" />
               </a>
-              <a href="#" className="w-8 h-8 rounded-full bg-accent flex items-center justify-center hover:bg-primary hover:text-primary-foreground transition-colors">
+              <a href="#" className="w-8 h-8 rounded-full bg-background border border-border flex items-center justify-center text-primary hover:bg-primary hover:text-primary-foreground transition-colors">
                 <Twitter className="w-4 h-4" />
               </a>
-              <a href="#" className="w-8 h-8 rounded-full bg-accent flex items-center justify-center hover:bg-primary hover:text-primary-foreground transition-colors">
+              <a href="#" className="w-8 h-8 rounded-full bg-background border border-border flex items-center justify-center text-primary hover:bg-primary hover:text-primary-foreground transition-colors">
                 <Instagram className="w-4 h-4" />
               </a>
-              <a href="#" className="w-8 h-8 rounded-full bg-accent flex items-center justify-center hover:bg-primary hover:text-primary-foreground transition-colors">
+              <a href="#" className="w-8 h-8 rounded-full bg-background border border-border flex items-center justify-center text-primary hover:bg-primary hover:text-primary-foreground transition-colors">
                 <Linkedin className="w-4 h-4" />
               </a>
             </div>
